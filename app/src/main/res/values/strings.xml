@@ -34,4 +34,6 @@
     <string name="currency_symbol">$</string>
     <string name="edit_item">Edit Item</string>
     <string name="add_new_item">Add new item</string>
+    <string name="add_list_item">Add list item</string>
+    <string name="back">back</string>
 </resources>

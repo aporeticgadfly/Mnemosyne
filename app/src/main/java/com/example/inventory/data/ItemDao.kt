@@ -29,20 +29,23 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ItemDao {
 
-    @Query("SELECT * from item ORDER BY name ASC")
-    fun getItems(): Flow<List<Item>>
+    @Query("SELECT * from ListItem ORDER BY title ASC")
+    fun getItems(): Flow<MutableList<ListItem>>
 
-    @Query("SELECT * from item WHERE id = :id")
-    fun getItem(id: Int): Flow<Item>
+    @Query("SELECT * from ListItem WHERE id = :id")
+    fun getItem(id: Int): Flow<ListItem>
+
+    @Query("SELECT title from ListItem WHERE id = :id")
+    fun getTitle(id: Int): Flow<String>
 
     // Specify the conflict strategy as IGNORE, when the user tries to add an
     // existing Item into the database Room ignores the conflict.
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(item: Item)
+    suspend fun insert(item: ListItem)
 
     @Update
-    suspend fun update(item: Item)
+    suspend fun update(item: ListItem)
 
-    @Delete
-    suspend fun delete(item: Item)
+    @Query("DELETE from ListItem WHERE id = :id")
+    suspend fun delete(id: Int)
 }

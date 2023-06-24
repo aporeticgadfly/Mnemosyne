@@ -15,31 +15,71 @@
  */
 package com.example.inventory
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import com.example.inventory.R
+import com.example.inventory.data.ListItem
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+    private lateinit var addList: ImageView
+    private lateinit var lin_main: LinearLayout
+    private lateinit var title_text: TextView
+    private lateinit var editBtn: Button
+    private lateinit var delBtn: Button
+    private var listArr: MutableList<ListItem> = arrayListOf()
+    private val viewModel: InventoryViewModel by viewModels {
+        InventoryViewModelFactory(
+            (this?.application as InventoryApplication).database
+                .itemDao()
+        )
+    }
 
-    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lin_main = findViewById(R.id.lin_main)
+        val listObserver = Observer<MutableList<ListItem>> { listArr ->
+            Log.d("", "arr size: "+ listArr)
+            if (listArr.isNotEmpty()) {
+                for (x in 0 until listArr.size) {
+                    Log.d("", "x: "+ x)
+                    var view: View = LayoutInflater.from(this).inflate(R.layout.listmain, null)
+                    title_text = view.findViewById(R.id.title_text)
+                    title_text.text = listArr.elementAt(x).list_title
+                    editBtn = view.findViewById(R.id.edit_list)
+                    editBtn.setOnClickListener {
+                        val editIntent = Intent(this, EditActivity::class.java)
+                        editIntent.putExtra("id", listArr.elementAt(x).id);
+                        this.startActivity(editIntent)
+                    }
+                    delBtn = view.findViewById(R.id.dele_list)
+                    delBtn.setOnClickListener {
+                        viewModel.deleteItem(listArr.elementAt(x).id)
+                        this.recreate()
+                    }
+                    //buttonlisteners? must pass id
+                    lin_main.addView(view)
+                    Log.d("", "view added")
+                }
+            }
+        }
+        viewModel.retrieveItems().observe(this, listObserver)
 
-        // Retrieve NavController from the NavHostFragment
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
-        // Set up the action bar for use with the NavController
-        setupActionBarWithNavController(this, navController)
-    }
-
-    /**
-     * Handle navigation when the user chooses Up from the action bar.
-     */
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        addList = findViewById(R.id.add_list)
+        addList.setOnClickListener {
+            val addListIntent = Intent(this, CreateActivity::class.java)
+            this.startActivity(addListIntent)
+        }
     }
 }

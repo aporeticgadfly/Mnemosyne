@@ -24,18 +24,11 @@ import java.text.NumberFormat
  * Entity data class represents a single row in the database.
  */
 @Entity
-data class Item(
+data class ListItem(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    @ColumnInfo(name = "name")
-    val itemName: String,
-    @ColumnInfo(name = "price")
-    val itemPrice: Double,
-    @ColumnInfo(name = "quantity")
-    val quantityInStock: Int,
+    @ColumnInfo(name = "title")
+    val list_title: String,
+    @ColumnInfo(name = "listitems")
+    val list_items: MutableList<String>
 )
-/**
- * Returns the passed in price in currency format.
- */
-fun Item.getFormattedPrice(): String =
-    NumberFormat.getCurrencyInstance().format(itemPrice)
