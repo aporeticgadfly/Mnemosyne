@@ -13,7 +13,8 @@
         android:layout_height="75dp"
         android:layout_marginLeft="15dp"
         android:layout_gravity="center_vertical"
-        android:hint="@string/item_name_req">
+        android:hint="@string/item_name_req"
+        style="@style/WhiteEdit">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/list_itemlist"
@@ -21,7 +22,9 @@
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:inputType="textAutoComplete|textCapWords"
-            android:singleLine="true" />
+            android:singleLine="true"
+            style="@style/WhiteEdit"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -30,6 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="15dp"
-        android:text="@string/delete" />
+        android:text="@string/delete"
+        style="@style/WhiteBackground"/>
 
 </LinearLayout>
