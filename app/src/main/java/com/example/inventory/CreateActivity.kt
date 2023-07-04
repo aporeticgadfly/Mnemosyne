@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -107,29 +108,15 @@ class CreateActivity : AppCompatActivity() {
 
         addItem.setOnClickListener {
 
-            // prepare id on incremental basis
-            //val id = ListItemAdapter.getNextItemId()
-
-            // prepare model for use
-            //val model = com.example.inventory.ListItemAdapter.ItemModel(id, content="")
-
-            // add model to the adapter
-            //ListItemAdapter.addItem(model)
-
-
             val view: View = LayoutInflater.from(this).inflate(R.layout.createiteminput, null)
             lateinit var delBtn: Button
             delBtn = view.findViewById(R.id.dele_item)
-            countArr.add(count)
 
             delBtn.setOnClickListener {
-                linear_layout2.removeViewAt(countArr.indexOf(count))
-                countArr.removeAt(countArr.indexOf(count))
-                val contextView = findViewById<View>(R.id.dele_item)
-                Snackbar.make(contextView, "List Item Deleted", Snackbar.LENGTH_SHORT)
-                    .show()
+                linear_layout2.removeView(view)
+                val contextView = findViewById<View>(R.id.lin_layout)
+                Toast.makeText(this, "List Item Deleted", Toast.LENGTH_SHORT).show()
             }
-            count++
             linear_layout2.addView(view)
 
 
@@ -148,9 +135,7 @@ class CreateActivity : AppCompatActivity() {
             listTitle = findViewById(R.id.editTitle)
             title_text = listTitle.text.toString()
             val layoutChildren: Int = linear_layout2.childCount
-            //Log.d("", "layoutkids: " + layoutChildren)
             for (x in 0 until layoutChildren) {
-                //Log.d("", "x: " + x)
                 itemLin = linear_layout2.getChildAt(x) as LinearLayout
                 itemList = itemLin.findViewById(R.id.list_itemlist)
                 list_text = itemList.text.toString()

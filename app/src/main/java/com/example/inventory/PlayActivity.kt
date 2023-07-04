@@ -40,18 +40,17 @@ class PlayActivity : AppCompatActivity() {
         )
     }
 
-    fun startFinish(sessionObj: MutableMap<String, MutableList<String>>, list_title: String, id: String) {
+    fun startFinish(sessionObj: MutableMap<String, MutableList<String>>, list_title: String, id: Int) {
         val finishIntent = Intent(this, FinishActivity::class.java)
         finishIntent.putExtra("correct", ArrayList(sessionObj["correct"]))
         finishIntent.putExtra("wrong", ArrayList(sessionObj["wrong"]))
-        finishIntent.putExtra("time", elapsedTime.getBase().toString())
+        finishIntent.putExtra("time", elapsedTime.text.toString())
         finishIntent.putExtra("title", list_title)
         finishIntent.putExtra("id", id)
         this.startActivity(finishIntent)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_play)
 
         val id = intent.getIntExtra("id", 0)
@@ -87,7 +86,7 @@ class PlayActivity : AppCompatActivity() {
                         }
                     }
                     if(list.list_items.size == 0) {
-                        startFinish(sessionObj, list.list_title, list.id.toString())
+                        startFinish(sessionObj, list.list_title, list.id.toInt())
                     }
                 }
 
@@ -105,7 +104,7 @@ class PlayActivity : AppCompatActivity() {
                 finishIntent.putExtra("wrong", ArrayList(sessionObj["wrong"]))
                 finishIntent.putExtra("time", elapsedTime.text.toString())
                 finishIntent.putExtra("title", list_title)
-                finishIntent.putExtra("id", id)
+                finishIntent.putExtra("id", id.toInt())
                 this.startActivity(finishIntent)
             }
         }

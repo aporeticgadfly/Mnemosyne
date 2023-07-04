@@ -47,26 +47,38 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Finish"
-        app:layout_constraintBottom_toTopOf="@+id/num_guessed"
+        app:layout_constraintBottom_toTopOf="@+id/num_guessed_l"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.845"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topAppBarUp"
         app:layout_constraintVertical_bias="0.211"
         style="@style/WhiteBackground"/>
-
-    <TextView
-        android:id="@+id/num_guessed"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="horizontal"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="num_guessed"
+        android:layout_marginTop="30dp"
         app:layout_constraintBottom_toTopOf="@+id/elapsed_time"
         app:layout_constraintEnd_toEndOf="@+id/elapsed_time"
         app:layout_constraintStart_toStartOf="@+id/elapsed_time"
         app:layout_constraintTop_toBottomOf="@+id/list_title"
-        style="@style/WhiteEdit"/>
+        android:id="@+id/num_guessed_l">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Number of Guesses: "
+            style="@style/WhiteEdit"
+            android:layout_marginRight="30dp"/>
+        <TextView
+            android:id="@+id/num_guessed"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="num_guessed"
+            style="@style/WhiteEdit"/>
+    </LinearLayout>
 
     <Chronometer
         android:id="@+id/elapsed_time"
@@ -75,12 +87,13 @@
         android:orientation="horizontal"
         android:layout_height="wrap_content"
         android:layout_marginBottom="64dp"
+        android:layout_marginTop="50dp"
         android:text="elapsed_time"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName3"
-        app:layout_constraintEnd_toEndOf="@+id/num_guessed"
+        app:layout_constraintEnd_toEndOf="@+id/num_guessed_l"
         app:layout_constraintHorizontal_bias="0.482"
-        app:layout_constraintStart_toStartOf="@+id/num_guessed"
-        app:layout_constraintTop_toBottomOf="@+id/num_guessed"
+        app:layout_constraintStart_toStartOf="@+id/num_guessed_l"
+        app:layout_constraintTop_toBottomOf="@+id/num_guessed_l"
         app:layout_constraintVertical_bias="1.0"
         style="@style/WhiteEdit"/>
 

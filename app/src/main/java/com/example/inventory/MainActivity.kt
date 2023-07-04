@@ -27,6 +27,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.Toolbar
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
@@ -39,6 +40,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.onNavDestinationSelected
 import com.example.inventory.R
 import com.example.inventory.data.ListItem
 import com.google.android.material.appbar.MaterialToolbar
@@ -71,14 +73,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val listObserver = Observer<MutableList<ListItem>> { listArr ->
             if (listArr.isNotEmpty()) {
                 for (x in 0 until listArr.size) {
-                    Log.d("", "x: "+ x)
+                    Log.d("", "x: " + x)
                     var view: View = LayoutInflater.from(this).inflate(R.layout.listmain, null)
                     title_text = view.findViewById(R.id.title_text)
                     title_text.text = listArr.elementAt(x).list_title
                     view.setOnClickListener {
                         val playIntent = Intent(this, PlayActivity::class.java)
-                        Log.d("", "to play:" + listArr.elementAt(x).id + listArr.elementAt(x).list_title)
-                        playIntent.putExtra("id", listArr.elementAt(x).id);
+                        playIntent.putExtra("id", listArr.elementAt(x).id.toInt());
                         playIntent.putExtra("title", listArr.elementAt(x).list_title);
 
                         this.startActivity(playIntent)
@@ -92,10 +93,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     delBtn = view.findViewById(R.id.dele_list)
                     delBtn.setOnClickListener {
                         viewModel.deleteItem(listArr.elementAt(x).id)
+                        val contextView = findViewById<View>(R.id.lin_main)
+                        Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
                         this.recreate()
-                        val contextView = findViewById<View>(R.id.dele_list)
-                        Snackbar.make(contextView, "List Deleted", Snackbar.LENGTH_SHORT)
-                            .show()
                     }
                     //buttonlisteners? must pass id
                     lin_main.addView(view)
@@ -110,66 +110,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             val addListIntent = Intent(this, CreateActivity::class.java)
             this.startActivity(addListIntent)
         }
-        topAppBar = findViewById(R.id.topAppBar)
-        //dont know if needed
-        /*topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                // TODO: MAKE THIS STUFF WORK BALAHHHHH
-                R.id.search -> {
-                    // edittext has to show up somewhere; save current state? then search through titles for matches
-                    //how to return to default state without edittext
-                    true
-                }
-                R.id.more -> {
-                    // Handle more item (inside overflow menu) press
-                    var moreItem: MenuItem = findViewById(R.id.more)
-                    moreItem.setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.itemId) {
-                            R.id.import_item -> {
-                                //implicit intent w file manager to choose file; have to do error checking to see if really xl file; detect separator?
-                                //after implicit, choose title to give to it in popup or error popup saying invalid filetype
-                                val importIntent = Intent()*/
-                                    //.setType("*/*")
-                                   /* .setAction(Intent.ACTION_GET_CONTENT)
-
-                                startActivityForResult(Intent.createChooser(importIntent, "Select a file"), 111)
-
-                                true
-                            }
-                            R.id.export_item -> {
-                                //popup for confirmation
-                                //add checkboxes to all lists
-                                //implicit intent w file manager to choose save location
-                                val CREATE_FILE = 1
-
-                                fun createFile(pickerInitialUri: Uri) {
-                                    val newFragment = ExportDialogFragment()
-                                    newFragment.show(supportFragmentManager, "export")
-
-                                    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                                        addCategory(Intent.CATEGORY_OPENABLE)
-                                        type = "application/pdf"
-                                        putExtra(Intent.EXTRA_TITLE, "invoice.pdf")
-
-                                        // Optionally, specify a URI for the directory that should be opened in
-                                        // the system file picker before your app creates the document.
-                                        putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
-                                    }
-                                    startActivityForResult(intent, CREATE_FILE)
-                                }
-
-                                true
-                            }
-                            else -> false
-                        }
-
-                    }
-                    true
-                }
-                else -> false
-            }
-        }
-        //
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.topAppBar)
         setSupportActionBar(toolbar)
         val actionbar: ActionBar? = supportActionBar
@@ -177,8 +117,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setDisplayHomeAsUpEnabled(true)
             setHomeAsUpIndicator(R.drawable.menu)
         }
-
-        mDrawerLayout = findViewById<DrawerLayout>(R.id.my_drawer_layout)
+        mDrawerLayout = findViewById(R.id.my_drawer_layout)
 
         val navigationView: NavigationView = findViewById(R.id.navigation)
         navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -188,29 +127,23 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             mDrawerLayout.closeDrawers()
 
             // Handle navigation view item clicks here.
-            // TODO: CHANGE FRAGMENTS BLAHHHHHH; all other fragments can only back
             when (menuItem.itemId) {
+                // TODO:
+                R.id.view_fragment -> {
+                    Toast.makeText(this, "View", Toast.LENGTH_LONG).show()
+                }
 
-                R.id.nav_home -> {
-                    //just change fragment
-                }
-                R.id.nav_view -> {
-                    //short item press to select item, default to first one; pass id
-                    mDrawerLayout.findNavController().navigate(R.id.viewFragment)
-                }
-                R.id.nav_settings -> {
-                    //just change fragment
-                    mDrawerLayout.findNavController().navigate(R.id.settingsFragment)
+                R.id.settings_fragment -> {
+                    Toast.makeText(this, "Setting", Toast.LENGTH_LONG).show()
                 }
             }
             // Add code here to update the UI based on the item selected
             // For example, swap UI fragments here
 
             true
+
         }
     }
-
-    //appbar - toolbar button click
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -221,12 +154,5 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             else -> super.onOptionsItemSelected(item)
         }
     }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == 111 && resultCode == RESULT_OK) {
-            val selectedFile = data?.data // The URI with the location of the file
-        }*/
-    }
-    }
+}
 

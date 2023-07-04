@@ -39,54 +39,118 @@
         android:layout_marginBottom="50dp"
         android:layout_marginTop="70dp"
         android:text="list_title"
-        app:layout_constraintBottom_toTopOf="@id/num_right"
+        app:layout_constraintBottom_toTopOf="@id/num_right_l"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/topAppBarUp"
         style="@style/WhiteEdit"/>
 
-    <TextView
-        android:id="@+id/num_right"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="num_right"
+        android:id="@+id/num_right_l"
         android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/num_missed"
+        app:layout_constraintBottom_toTopOf="@+id/num_missed_l"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/list_title"
         app:layout_constraintVertical_bias="0.736"
-        style="@style/WhiteEdit"/>
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/num_right_label"
+            android:text="Number of Right Answers: "
+            style="@style/WhiteEdit"
+            android:layout_marginRight="30dp"/>
+        <TextView
+            android:id="@+id/num_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="num_right"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/num_missed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/list_title"
+            app:layout_constraintVertical_bias="0.736"
+            style="@style/WhiteEdit"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/num_missed"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="num_missed"
-        android:gravity="center_horizontal"
+        android:id="@+id/num_missed_l"
         android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/elapsed_time"
+        app:layout_constraintBottom_toTopOf="@+id/elapsed_time_l"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/num_right"
-        app:layout_constraintVertical_bias="0.793"
-        style="@style/WhiteEdit"/>
+        app:layout_constraintTop_toBottomOf="@id/num_right_l"
+        app:layout_constraintVertical_bias="0.736"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/num_missed_label"
+            android:text="Number of Missed Answers: "
+            style="@style/WhiteEdit"
+            android:layout_marginRight="30dp"/>
+        <TextView
+            android:id="@+id/num_missed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="num_missed"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/num_missed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/list_title"
+            app:layout_constraintVertical_bias="0.736"
+            style="@style/WhiteEdit"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/elapsed_time"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="elapsed_time"
-        android:gravity="center_horizontal"
+        android:id="@+id/elapsed_time_l"
+        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/retry_btn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/num_missed"
-        style="@style/WhiteEdit"
-        />
+        app:layout_constraintTop_toBottomOf="@id/list_title"
+        app:layout_constraintVertical_bias="0.736"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/elapsed_time_label"
+            android:text="Elapsed Time: "
+            style="@style/WhiteEdit"
+            android:layout_marginRight="30dp"/>
+        <TextView
+            android:id="@+id/elapsed_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="0"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/num_missed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/list_title"
+            app:layout_constraintVertical_bias="0.736"
+            style="@style/WhiteEdit"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/retry_btn"
@@ -110,7 +174,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.512"
         app:layout_constraintStart_toEndOf="@+id/retry_btn"
-        app:layout_constraintTop_toBottomOf="@id/elapsed_time"
         app:layout_constraintVertical_bias="0.095"
         android:layout_marginBottom="30dp"
         android:layout_marginStart="70dp"
@@ -125,7 +188,9 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.navigation.NavigationView

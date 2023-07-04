@@ -1,12 +1,15 @@
 package com.example.inventory
 
 import android.content.Context
+import android.graphics.Color
 import android.media.Image
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.ArrayList
 
@@ -40,17 +43,19 @@ class FinishAdapter(
      * Replace the contents of a view (invoked by the layout manager)
      */
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        Log.d("onbindview out if", position.toString())
         if (wrong != null && correct != null) {
+            Log.d("onbindview in if", position.toString())
             if (position < wrong.size) {
-                holder.textView.setText(wrong[position])
+                holder.textView.text = wrong[position]
                 holder.imageView.setImageResource(R.drawable.wrong)
+                holder.textView.setTextColor(Color.parseColor("#ff0000"));
             } else {
-                holder.textView.setText(correct[position - wrong.size])
-                holder.imageView.setImageResource(R.drawable.check)
+                holder.textView.text = correct[position - wrong.size]
+                //holder.imageView.setImageResource(R.drawable.check)
             }
         }
 
-        //CHANGE IMAGEVIEWS
     }
 
     /**
@@ -58,6 +63,7 @@ class FinishAdapter(
      */
     override fun getItemCount(): Int {
         if (wrong != null && correct != null) {
+            Log.d("", "size: "+correct.size + wrong.size)
             return correct.size + wrong.size
         }
         else {

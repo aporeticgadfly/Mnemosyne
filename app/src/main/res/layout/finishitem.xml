@@ -4,19 +4,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="20dp">
 
     <ImageView
         android:layout_width="50dp"
-        android:layout_height="match_parent"
+        android:layout_height="20dp"
+        android:src="@drawable/check"
         android:id="@+id/finishimage"
         />
     <TextView
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:id="@+id/finishitem"
+        android:text="list_item"
+        android:layout_marginLeft="20dp"
         style="@style/WhiteEdit"
+        android:textColor="#008000"
     />
 
+</LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_height="2dp"
+        android:background="#c0c0c0"/>
 </LinearLayout>

@@ -3,6 +3,7 @@ package com.example.inventory
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
@@ -33,7 +34,7 @@ class FinishActivity : AppCompatActivity() {
         val wrong = intent.getStringArrayListExtra("wrong")
         val time_taken = intent.getStringExtra("time")
         val list_title = intent.getStringExtra("title")
-        val id = intent.getIntExtra("id", 9)
+        val id = intent.getIntExtra("id", 0)
 
         listTitle = findViewById(R.id.list_title)
         numRight = findViewById(R.id.num_right)
@@ -54,7 +55,7 @@ class FinishActivity : AppCompatActivity() {
 
         retryBtn.setOnClickListener {
             val retryIntent = Intent(this, PlayActivity::class.java)
-            retryIntent.putExtra("id", id)
+            retryIntent.putExtra("id", id.toInt())
             retryIntent.putExtra("title", list_title)
             this.startActivity(retryIntent)
         }

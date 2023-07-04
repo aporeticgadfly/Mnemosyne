@@ -4,15 +4,13 @@
     tools:ignore="HardcodedText">
 
     <item
-        android:id="@+id/nav_home"
-        android:title="Home" />
-
-    <item
-    android:id="@+id/nav_view"
+    android:id="@+id/view_fragment"
+        android:icon="@drawable/view"
     android:title="View" />
 
     <item
-    android:id="@+id/nav_settings"
+    android:id="@+id/settings_fragment"
+        android:icon="@drawable/settings2"
     android:title="Settings" />
 
     </menu>
