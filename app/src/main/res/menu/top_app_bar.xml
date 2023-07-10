@@ -9,7 +9,14 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/more"
+        android:id="@+id/confirm"
+        android:icon="@drawable/white_check"
+        android:title="confirm"
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/more_item"
         android:icon="@drawable/dots"
         android:title="more"
         app:showAsAction="ifRoom">

@@ -1,0 +1,34 @@
+add expandablelistviews
+test
+add back button functionality and navview with other than main
+make responsive?
+add settings
+add search?
+
+write the tree
+when main retrieveitems,
+	for each item
+		count delims
+		if item = 1: winner = item.delimcount
+		if item.delimcount > winner
+			winner = item.delimcount
+ 
+	for 0 to maxdelimcount as delimcount
+		for each item
+			if item.delimsize - delimcount = 1
+				write a linmain w title w delims stripped into expandedlistview w title item.title[0:delimcount]
+			else if item.delimsize > delimcount
+				break
+			else
+				write expandedlistview w title item.title[0:delimcount]
+
+
+
+
+
+
+
+
+
+
+

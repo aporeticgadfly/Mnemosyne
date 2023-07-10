@@ -44,7 +44,7 @@ class FinishActivity : AppCompatActivity() {
         homeBtn = findViewById(R.id.home_btn)
         items = findViewById(R.id.items)
 
-        elapsedTime.setText(time_taken)
+        elapsedTime.text = time_taken
         if (correct != null) {
             numRight.text = correct.size.toString()
         }

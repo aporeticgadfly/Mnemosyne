@@ -33,9 +33,9 @@ class PlayActivity : AppCompatActivity() {
     private var num_guessed: Int = 0
     private var sessionObj: MutableMap<String, MutableList<String>> = mutableMapOf("correct" to mutableListOf(), "wrong" to mutableListOf())
 
-    private val viewModel: InventoryViewModel by viewModels {
-        InventoryViewModelFactory(
-            (this?.application as InventoryApplication).database
+    private val viewModel: MnemosyneViewModel by viewModels {
+        MnemosyneViewModelFactory(
+            (this?.application as Mnemosyne).database
                 .itemDao()
         )
     }

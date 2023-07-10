@@ -23,14 +23,13 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ListItem
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
  * View Model to keep a reference to the Inventory repository and an up-to-date list of all items.
  *
  */
-class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
+class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
 
     // Cache all items form the database using LiveData.
     val allItems: LiveData<List<ListItem>> = itemDao.getItems().asLiveData()
@@ -90,6 +89,10 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         return itemDao.getItem(id).asLiveData()
     }
 
+    fun retrieveSyncItem(id: Int): ListItem {
+        return itemDao.getSyncItem(id)
+    }
+
     /**
      * RETRIEVE ALL ITEMS BAHAHAHAHAHHAHAHAHAHAHAHA
      */
@@ -138,11 +141,11 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
 /**
  * Factory class to instantiate the [ViewModel] instance.
  */
-class InventoryViewModelFactory(private val itemDao: ItemDao) : ViewModelProvider.Factory {
+class MnemosyneViewModelFactory(private val itemDao: ItemDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(InventoryViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(MnemosyneViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return InventoryViewModel(itemDao) as T
+            return MnemosyneViewModel(itemDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

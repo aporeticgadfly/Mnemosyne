@@ -24,7 +24,7 @@
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="List App"
+            app:title="Create"
             app:menu="@menu/top_app_bar_ns"
             app:navigationIcon="@drawable/menu"
             style="@style/Widget.MaterialComponents.Toolbar.Primary"

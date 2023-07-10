@@ -35,6 +35,9 @@ interface ItemDao {
     @Query("SELECT * from ListItem WHERE id = :id")
     fun getItem(id: Int): Flow<ListItem>
 
+    @Query("SELECT * from ListItem WHERE id = :id")
+    fun getSyncItem(id: Int): ListItem
+
     @Query("SELECT title from ListItem WHERE id = :id")
     fun getTitle(id: Int): Flow<String>
 

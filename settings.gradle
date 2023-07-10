@@ -15,4 +15,4 @@
  */
 
 include ':app'
-rootProject.name = "InventoryApp"
+rootProject.name = "Mnemosyne"

@@ -46,9 +46,9 @@ class CreateActivity : AppCompatActivity() {
     //private lateinit var itemList: LinearLayout
     private lateinit var linear_layout2: LinearLayout
 
-    private val viewModel: InventoryViewModel by viewModels {
-        InventoryViewModelFactory(
-            (this?.application as InventoryApplication).database
+    private val viewModel: MnemosyneViewModel by viewModels {
+        MnemosyneViewModelFactory(
+            (this?.application as Mnemosyne).database
                 .itemDao()
         )
     }

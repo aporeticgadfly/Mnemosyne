@@ -65,4 +65,10 @@
         <item name="android:editTextColor">#FFFFFF</item>
     </style>
 
+    <style name="RadioButtonOn" parent="TextAppearance.AppCompat">
+        <item name="android:visibility">visible</item>
+    </style>
+    <style name="RadioButtonOff" parent="TextAppearance.AppCompat">
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>
