@@ -50,6 +50,7 @@ class ExpandableListViewAdapter(activity: Activity) : BaseAdapter() {
     }
 
     override fun getView(i: Int, convertView: View, viewGroup: ViewGroup): View {
+        /*
         var convertView = convertView
         val direction = getItemViewType(i)
         if (convertView == null) {
@@ -59,7 +60,7 @@ class ExpandableListViewAdapter(activity: Activity) : BaseAdapter() {
         }
         val message = name[i]
         val txtMessage = convertView.findViewById<View>(R.id.contactName) as TextView
-        txtMessage.text = message
+        txtMessage.text = message*/
         return convertView
     }
 }

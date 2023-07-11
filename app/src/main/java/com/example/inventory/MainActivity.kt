@@ -1,15 +1,14 @@
 //@author: Santiago Orellana, June 2023
 package com.example.inventory
 
-import android.app.Notification.Action
+import android.content.ContentValues
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.DocumentsContract
-import android.provider.MediaStore.Audio.Radio
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -17,42 +16,31 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
-import android.widget.ExpandableListView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.Toolbar
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.menu.ActionMenuItem
-import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.onNavDestinationSelected
-import com.example.inventory.R
 import com.example.inventory.data.ListItem
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import org.apache.commons.csv.CSVPrinter
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.LocalDateTime
 import java.util.Calendar
+import java.util.Date
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var addList: ImageView
@@ -71,16 +59,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         )
     }
 
-    class TreeNode<T>(value:T){
-        var value:T = value
-        var parent:TreeNode<T>? = null
+    class TreeNode<T>(value: T) {
+        var value: T = value
+        var parent: TreeNode<T>? = null
 
-        var children:MutableList<TreeNode<T>> = mutableListOf()
+        var children: MutableList<TreeNode<T>> = mutableListOf()
 
-        fun addChild(node:TreeNode<T>){
+        fun addChild(node: TreeNode<T>) {
             children.add(node)
             node.parent = this
         }
+
         override fun toString(): String {
             var s = "${value}"
             if (!children.isEmpty()) {
@@ -91,41 +80,45 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private val getFile = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    private val getFile =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
 
-        if (uri != null) {
-            var path = contentResolver.query(uri, null, null, null, null)
+            if (uri != null) {
+                var path = contentResolver.query(uri, null, null, null, null)
 
-            val reader = Files.newBufferedReader(Paths.get(path.toString()))
-            val csvParser = CSVParser(reader, CSVFormat.DEFAULT
-                .withHeader("Title", "Items")
-                .withIgnoreHeaderCase()
-                .withTrim())
-            for (csvRecord in csvParser) {
-                val title = csvRecord.get("Title")
-                val items = csvRecord.get("Items")
-                println("Record No - " + csvRecord.recordNumber)
-                println("---------------")
-                println("Title : $title")
-                println("Items : $items")
-                println("---------------")
-                var itemArr : MutableList<String> = items.split("#@!").toMutableList()
+                val reader = Files.newBufferedReader(Paths.get(path.toString()))
+                val csvParser = CSVParser(
+                    reader, CSVFormat.DEFAULT
+                        .withHeader("Title", "Items")
+                        .withIgnoreHeaderCase()
+                        .withTrim()
+                )
+                for (csvRecord in csvParser) {
+                    val title = csvRecord.get("Title")
+                    val items = csvRecord.get("Items")
+                    println("Record No - " + csvRecord.recordNumber)
+                    println("---------------")
+                    println("Title : $title")
+                    println("Items : $items")
+                    println("---------------")
+                    var itemArr: MutableList<String> = items.split("#@!").toMutableList()
 
-                viewModel.addNewItem(title, itemArr)
+                    viewModel.addNewItem(title, itemArr)
+                }
+                this.recreate()
             }
-            this.recreate()
-        }
-    }
-
-    val requestPermis = registerForActivityResult(ActivityResultContracts.RequestPermission()) {res: Boolean ->
-        if (res) {
-            Log.d("perm", "granted")
-        }
-        else {
-            Log.d("perm", "not granted")
         }
 
-    }
+    val requestPermis =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { res: Boolean ->
+            if (res) {
+                Log.d("perm", "granted")
+            } else {
+                Log.d("perm", "not granted")
+
+            }
+
+        }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -147,24 +140,23 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             if (listArr.isNotEmpty()) { //null check
                 val layoutChildren: Int = lin_main.childCount
                 //removes any views that didnt get destroyed so no false duplicates
-                for(x in 0 until layoutChildren) {
+                for (x in 0 until layoutChildren) {
                     lin_main.removeViewAt(x)
                 }
 
                 //
                 //writing the tree
-                var currentNode : TreeNode<String>? = null
-                var previousNode : TreeNode<String>? = null
-                var intermediateNode : TreeNode<String>? = null
-                var nodeArr : MutableList<TreeNode<String>?> = mutableListOf()
+                var currentNode: TreeNode<String>? = null
+                var previousNode: TreeNode<String>? = null
+                var intermediateNode: TreeNode<String>? = null
+                var nodeArr: MutableList<TreeNode<String>?> = mutableListOf()
 
                 for (x in 0 until listArr.size) {
                     for (y in 0 until listArr[x].list_title.split("::").size) {
                         if (y == 0) {
                             var rootNode = TreeNode<String>(listArr[x].list_title.split("::")[y])
                             previousNode = rootNode
-                        }
-                        else {
+                        } else {
                             currentNode = TreeNode<String>(listArr[x].list_title.split("::")[y])
                             previousNode?.addChild(currentNode)
                             intermediateNode = previousNode
@@ -178,6 +170,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     nodeArr.add(intermediateNode)
                 }
                 //follow
+                /*
                 for (x in nodeArr) {
                     //move to root node
                     var rootNode : TreeNode<String>? = null
@@ -206,7 +199,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                             recursFun(child, expand)
                         }
                     }
-                }
+                }*/
 
                 for (x in 0 until listArr.size) {
 
@@ -215,7 +208,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     var view: View = LayoutInflater.from(this).inflate(R.layout.listmain, null)
                     title_text = view.findViewById(R.id.title_text)
                     //sets up an invisible id for duplicates and collisions and such
-                    var list_id : TextView = view.findViewById(R.id.list_id)
+                    var list_id: TextView = view.findViewById(R.id.list_id)
                     list_id.text = listArr.elementAt(x).id.toString()
                     list_id.visibility = View.GONE
 
@@ -223,7 +216,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     title_text.text = listArr.elementAt(x).list_title
 
                     //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
-                    var rb : RadioButton = view.findViewById(R.id.radiob)
+                    var rb: RadioButton = view.findViewById(R.id.radiob)
                     rb.visibility = View.GONE
                     rb.setOnClickListener {
                         val viewIntent = Intent(this, ViewActivity::class.java)
@@ -235,10 +228,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     var cb: CheckBox = view.findViewById(R.id.checkb)
                     cb.visibility = View.GONE
                     cb.setOnCheckedChangeListener { buttonView, isChecked ->
-                        if(isChecked) {
+                        if (isChecked) {
                             listCbs.add(listArr.elementAt(x).id)
-                        }
-                        else {
+                        } else {
                             listCbs.remove(listArr.elementAt(x).id)
                         }
                     }
@@ -295,7 +287,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 // make rb visible so that view can know which list to display
                 R.id.view_activity -> {
                     val layoutChildren: Int = lin_main.childCount
-                    for(x in 0 until layoutChildren) {
+                    for (x in 0 until layoutChildren) {
                         val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
                         val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
                         val rb: RadioButton = horizont.getChildAt(0) as RadioButton
@@ -314,6 +306,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
     }
+
     //manages navigation buttons apart from drawer
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -337,30 +330,30 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             //replaces search when made to appear; finalizes action of export
             R.id.confirm -> {
 
-                val permission = "Manifest.permission.WRITE_EXTERNAL_STORAGE"
-                val requestCode = 1
-
-                // Check if permission is already granted
-                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                    // Permission has not been granted, request it
-                    ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
-                } else {
-                    // Permission already granted
-                    // Proceed with exporting/importing
-                }
-
-
+                //ask for permission
+                //if given, do a createdocumentforresult
 
                 val createThread = Thread {
-                    val writer = Files.newBufferedWriter(Paths.get(getExternalFilesDir(null)?.absolutePath + Calendar.getInstance().time))
-                    Log.d("path", getExternalFilesDir(null)?.absolutePath + Calendar.getInstance().time)
-                    val csvPrinter = CSVPrinter(writer, CSVFormat.DEFAULT
-                        .withHeader("Title", "Items"))
 
-                    for(x in listCbs) {
+                val resolver = applicationContext.contentResolver
+                val values = ContentValues()
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, LocalDateTime.now().toString())
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                val uri = resolver.insert(MediaStore.Files.getContentUri("external"), values)
+
+                    val writer =
+                        Files.newBufferedWriter(Paths.get(uri?.path))
+
+                    val csvPrinter = CSVPrinter(
+                        writer, CSVFormat.DEFAULT
+                            .withHeader("Title", "Items")
+                    )
+
+                    for (x in listCbs) {
                         var createItem: ListItem = viewModel.retrieveSyncItem(x)
 
-                        var itemsString : String = ""
+                        var itemsString: String = ""
                         for (item in createItem.list_items) {
                             itemsString += item
                             itemsString += "#@!"
@@ -372,11 +365,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                     csvPrinter.flush()
                     csvPrinter.close()
-                    MediaScannerConnection.scanFile(this,
-                        arrayOf(getExternalFilesDir(null)?.absolutePath + Calendar.getInstance().time), null, null)
+                    MediaScannerConnection.scanFile(
+                        this,
+                        arrayOf(getExternalFilesDir(null)?.absolutePath + Calendar.getInstance().time),
+                        null,
+                        null
+                    )
                     runOnUiThread {
                         val layoutChildren: Int = lin_main.childCount
-                        for(x in 0 until layoutChildren) {
+                        for (x in 0 until layoutChildren) {
                             val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
                             val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
                             val cb: CheckBox = horizont.getChildAt(1) as CheckBox
@@ -399,7 +396,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             //submenu item of more; makes cbs visible for each list so user can choose which lists to export
             R.id.export_item -> {
                 val layoutChildren: Int = lin_main.childCount
-                for(x in 0 until layoutChildren) {
+                for (x in 0 until layoutChildren) {
                     val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
                     val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
                     val cb: CheckBox = horizont.getChildAt(1) as CheckBox
@@ -428,24 +425,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         menuInflater.inflate(R.menu.top_app_bar, menu)
         return true
     }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        val createDocumentLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
-            if (uri != null) {
-                // Handle the URI returned from the file picker
-                // Proceed with exporting or importing
-            } else {
-                // User canceled or an error occurred
-            }
-        }
-
-        createDocumentLauncher.launch(intent)
-    }
-
 }
+
 
