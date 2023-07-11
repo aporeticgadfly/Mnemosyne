@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.MediaStore.Audio.Radio
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -36,6 +37,7 @@ import com.google.android.material.navigation.NavigationView
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import org.apache.commons.csv.CSVPrinter
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDateTime
@@ -77,6 +79,45 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             return s
         }
+
+        private fun recursEquals(original: MutableList<TreeNode<T>>, other: MutableList<TreeNode<T>>) : Boolean {
+            if(original.size != 0 && other.size != 0) {
+                if (original.size == other.size) {
+                    for (x in 0 until original.size) {
+                        if (original[x].children != other[x].children) {
+                            return false
+                        }
+                    }
+                    for (x in 0 until original.size) {
+                        val result = recursEquals(original[x].children, other[x].children)
+                        return result
+                    }
+                }
+            }
+            else if (original.size == 0 && other.size == 0) {
+                return true
+            }
+            return false
+        }
+
+        fun equals(other: TreeNode<T>) : Boolean {
+            if(value == other.value) {
+                val result = recursEquals(children, other.children)
+                return result
+            }
+            return false
+        }
+
+        fun getAncestor() : TreeNode<T> {
+            if (parent == null) {
+                return this
+            }
+            while (parent != null) {
+                    var ancestor = parent!!.getAncestor()
+                    return ancestor
+            }
+            return this
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -84,16 +125,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
 
             if (uri != null) {
-                var path = contentResolver.query(uri, null, null, null, null)
+                val resolver = applicationContext.contentResolver
+                val reader = resolver.openInputStream(uri)?.bufferedReader(charset = Charset.defaultCharset())
 
-                val reader = Files.newBufferedReader(Paths.get(path.toString()))
                 val csvParser = CSVParser(
                     reader, CSVFormat.DEFAULT
                         .withHeader("Title", "Items")
                         .withIgnoreHeaderCase()
                         .withTrim()
                 )
-                for (csvRecord in csvParser) {
+                for ((index, csvRecord) in csvParser.withIndex()) {
+                    print(csvRecord.toString())
+                    if (index == 0) {
+                        continue
+                    }
                     val title = csvRecord.get("Title")
                     val items = csvRecord.get("Items")
                     println("Record No - " + csvRecord.recordNumber)
@@ -102,24 +147,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     println("Items : $items")
                     println("---------------")
                     var itemArr: MutableList<String> = items.split("#@!").toMutableList()
+                    itemArr.removeLast()
 
                     viewModel.addNewItem(title, itemArr)
                 }
                 this.recreate()
             }
         }
-
-    val requestPermis =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { res: Boolean ->
-            if (res) {
-                Log.d("perm", "granted")
-            } else {
-                Log.d("perm", "not granted")
-
-            }
-
-        }
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,7 +167,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setDisplayHomeAsUpEnabled(true)
             setHomeAsUpIndicator(R.drawable.menu)
         }
-        // TODO: change
         //observer that reads list of stored lists from database using livedata
         lin_main = findViewById(R.id.lin_main)
         val listObserver = Observer<MutableList<ListItem>> { listArr ->
@@ -150,36 +183,90 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 var previousNode: TreeNode<String>? = null
                 var intermediateNode: TreeNode<String>? = null
                 var nodeArr: MutableList<TreeNode<String>?> = mutableListOf()
+                var finalArr: MutableList<TreeNode<String>?> = mutableListOf()
+                var matchFlag: Boolean = false
+                var matchFlag2: Boolean = false
+                var matchFlag3: Boolean = false
 
                 for (x in 0 until listArr.size) {
                     for (y in 0 until listArr[x].list_title.split("::").size) {
                         if (y == 0) {
-                            var rootNode = TreeNode<String>(listArr[x].list_title.split("::")[y])
-                            previousNode = rootNode
+                            for (node in nodeArr) {
+                                val ancestor = node?.getAncestor()
+                                if (ancestor?.value == listArr[x].list_title.split("::")[y]) {
+                                    previousNode = ancestor
+                                    matchFlag = true
+                                    break
+                                }
+                            }
+                            if (matchFlag == false) {
+                                var rootNode = TreeNode<String>(listArr[x].list_title.split("::")[y])
+                                previousNode = rootNode
+                            }
+                            else {
+                                matchFlag = false
+                            }
                         } else {
                             currentNode = TreeNode<String>(listArr[x].list_title.split("::")[y])
-                            previousNode?.addChild(currentNode)
-                            intermediateNode = previousNode
-                            previousNode = currentNode
-
+                            if (previousNode?.children != null) {
+                                for (node in previousNode.children!!) {
+                                    if (node.value == currentNode.value) {
+                                        matchFlag2 = true
+                                        break
+                                    }
+                                }
+                                if (matchFlag2 != true) {
+                                    previousNode.addChild(currentNode)
+                                    intermediateNode = previousNode
+                                    previousNode = currentNode
+                                }
+                                else {
+                                    matchFlag2 = false
+                                }
+                            }
+                            else {
+                                previousNode?.addChild(currentNode)
+                                intermediateNode = previousNode
+                                previousNode = currentNode
+                            }
                         }
                     }
-                    if (currentNode != null) {
+                    //check if on this level, other nodes w same value
+                    /*if (currentNode != null) {
                         intermediateNode?.addChild(currentNode)
-                    }
+                    }*/
                     nodeArr.add(intermediateNode)
                 }
+                for ((index, node) in nodeArr.withIndex()) {
+                    if(index == 0) {
+                        finalArr.add(node)
+                        continue
+                    }
+                    for (x in 0 until finalArr.size) {
+                        if (node != null) {
+                            if(node.equals(finalArr[x])) {
+                                matchFlag3 = true
+                                break
+                            }
+                        }
+                    }
+                    if (matchFlag3 == false) {
+                        finalArr.add(node)
+                    }
+                    else {
+                        matchFlag3 = false
+                    }
+                }
+                Log.d("tree", finalArr.toString())
+
                 //follow
                 /*
-                for (x in nodeArr) {
+                for (x in finalArr) {
                     //move to root node
-                    var rootNode : TreeNode<String>? = null
-                    while(x?.parent != null) {
-                        rootNode = x
-                    }
+                    var y = x.getAncestor()
                     //write root node to lin_main
                     var expand = ExpandableListView(this)
-                    expand. = rootNode?.value
+                    expand. = y?.value
                     lin_main.addView(expand)
                     //call recursfun w current node and view
                     recursFun(rootNode, expand)
@@ -294,6 +381,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                         rb.visibility = View.VISIBLE
                     }
+                    topAppBar.menu.findItem(R.id.more_item).isVisible = false
+                    topAppBar.menu.findItem(R.id.cancel_item).isVisible = true
                 }
                 //go to settings
                 R.id.settings_activity -> {
@@ -327,6 +416,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                 true
             }
+
+            R.id.cancel_item -> {
+                val layoutChildren: Int = lin_main.childCount
+                for (x in 0 until layoutChildren) {
+                    val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
+                    val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
+                    val cb: CheckBox = horizont.getChildAt(1) as CheckBox
+                    val rb: RadioButton = horizont.getChildAt(0) as RadioButton
+
+                    rb.visibility = View.GONE
+                    cb.visibility = View.GONE
+                }
+                topAppBar.menu.findItem(R.id.search).isVisible = true
+                topAppBar.menu.findItem(R.id.confirm).isVisible = false
+                topAppBar.menu.findItem(R.id.more_item).isVisible = true
+                topAppBar.menu.findItem(R.id.cancel_item).isVisible = false
+                true
+            }
             //replaces search when made to appear; finalizes action of export
             R.id.confirm -> {
 
@@ -341,30 +448,31 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
                 values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 val uri = resolver.insert(MediaStore.Files.getContentUri("external"), values)
+                    if (uri != null) {
+                        val writer = resolver.openOutputStream(uri)?.bufferedWriter(charset = Charset.defaultCharset())
+                        val csvPrinter = CSVPrinter(
+                            writer, CSVFormat.DEFAULT
+                                .withHeader("Title", "Items")
+                        )
 
-                    val writer =
-                        Files.newBufferedWriter(Paths.get(uri?.path))
+                        for (x in listCbs) {
+                            var createItem: ListItem = viewModel.retrieveSyncItem(x)
 
-                    val csvPrinter = CSVPrinter(
-                        writer, CSVFormat.DEFAULT
-                            .withHeader("Title", "Items")
-                    )
+                            var itemsString: String = ""
+                            for (item in createItem.list_items) {
+                                itemsString += item
+                                itemsString += "#@!"
+                            }
+                            //trim final delimiter here
+                            var itemsTrimmed = itemsString.substring(0, itemsString.length - 3)
+                            csvPrinter.printRecord("${createItem.list_title}", "${itemsTrimmed}")
 
-                    for (x in listCbs) {
-                        var createItem: ListItem = viewModel.retrieveSyncItem(x)
-
-                        var itemsString: String = ""
-                        for (item in createItem.list_items) {
-                            itemsString += item
-                            itemsString += "#@!"
                         }
-                        //trim final delimiter here
-                        var itemsTrimmed = itemsString.substring(0, itemsString.length - 3)
-                        csvPrinter.printRecord("${createItem.list_title}", "${itemsTrimmed}")
-
+                        csvPrinter.flush()
+                        csvPrinter.close()
                     }
-                    csvPrinter.flush()
-                    csvPrinter.close()
+
+
                     MediaScannerConnection.scanFile(
                         this,
                         arrayOf(getExternalFilesDir(null)?.absolutePath + Calendar.getInstance().time),
@@ -385,6 +493,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         val topAppBar: MaterialToolbar = findViewById(R.id.topAppBar)
                         topAppBar.menu.findItem(R.id.search).isVisible = true
                         topAppBar.menu.findItem(R.id.confirm).isVisible = false
+                        topAppBar.menu.findItem(R.id.more_item).isVisible = true
+                        topAppBar.menu.findItem(R.id.cancel_item).isVisible = false
 
                         Toast.makeText(this, "List(s) Exported", Toast.LENGTH_SHORT).show()
                     }
@@ -407,12 +517,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 val topAppBar: MaterialToolbar = findViewById(R.id.topAppBar)
                 topAppBar.menu.findItem(R.id.search).isVisible = false
                 topAppBar.menu.findItem(R.id.confirm).isVisible = true
+                topAppBar.menu.findItem(R.id.more_item).isVisible = false
+                topAppBar.menu.findItem(R.id.cancel_item).isVisible = true
 
                 true
             }
             //opens up file selector to choose what to import
             R.id.import_item -> {
-                getFile.launch("text/csv")
+                getFile.launch("*/*")
                 true
             }
 

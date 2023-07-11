@@ -58,6 +58,7 @@ class EditActivity : AppCompatActivity() {
         linear_layout2 = findViewById(R.id.lin_layout)
 
         val editObserver = Observer<ListItem> { list ->
+            Log.d("edit", list.toString())
             listTitle.setText(list.list_title)
             for(x in 0 until list.list_items.size-1) {
                 val view: View = LayoutInflater.from(this).inflate(R.layout.createiteminput, null)

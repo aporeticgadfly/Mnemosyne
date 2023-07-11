@@ -16,6 +16,12 @@
         android:visible="false"/>
 
     <item
+        android:id="@+id/cancel_item"
+        android:icon="@drawable/cancel"
+        android:title="cancel"
+        android:visible="false" />
+
+    <item
         android:id="@+id/more_item"
         android:icon="@drawable/dots"
         android:title="more"
