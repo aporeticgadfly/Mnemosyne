@@ -11,6 +11,10 @@
         android:label="View"
         android:name="com.example.inventory.ViewActivity" />
 
+    <activity android:id="@+id/history_activity"
+        android:label="View"
+        android:name="com.example.inventory.HistoryActivity" />
+
     <activity android:id="@+id/settings_activity"
         android:label="Settings"
         android:name="com.example.inventory.SettingsActivity" />

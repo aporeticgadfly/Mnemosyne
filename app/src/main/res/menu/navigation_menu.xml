@@ -11,6 +11,10 @@
         android:id="@+id/view_activity"
         android:icon="@drawable/view"
         android:title="View" />
+    <item
+        android:id="@+id/history_activity"
+        android:icon="@drawable/history"
+        android:title="History" />
 
     <item
         android:id="@+id/settings_activity"

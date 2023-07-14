@@ -71,7 +71,7 @@ class EditActivity : AppCompatActivity() {
                 }
                 lateinit var itemEdit: EditText
                 itemEdit = view.findViewById(R.id.list_itemlist)
-                itemEdit.setText(list.list_items[x])
+                itemEdit.setText(list.list_items[x].text)
                 linear_layout2.addView(view)
             }
 

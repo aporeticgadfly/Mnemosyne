@@ -16,6 +16,12 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.settings_container, MySettingsFragment())
+            .commit()
+
+
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.topAppBar)
         setSupportActionBar(toolbar)
         val actionbar: ActionBar? = supportActionBar

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:key="noInstant"
+        android:title="Disable automatic answer submission"
+        />
+
+    <SwitchPreferenceCompat
+        android:key="nightMode"
+        android:title="Disable night mode"
+        />
+
+    <Preference
+        android:title="Clear session history"
+        android:key="clearHistory"
+        />
+
+    <Preference
+        android:title="Reset to default settings"
+        android:key="resetSettings"
+        />
+
+    <SeekBarPreference
+        android:title="Set history record count"
+        android:key="setHistory"
+        />
+
+    <Preference
+        android:title="Select export folder"
+        android:key="exportFolder"
+        android:summary="folder path"
+        />
+
+    <Preference
+        android:title="Report a bug"
+        android:key="reportBug"
+        />
+
+    <Preference
+        android:title="Support Mnemosyne"
+        android:key="support"
+        />
+
+    <Preference
+        android:title="About"
+        android:key="about"
+        android:summary="App version"
+        />
+
+
+
+
+</PreferenceScreen>

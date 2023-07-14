@@ -31,7 +31,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.ListItem
+import com.example.inventory.data.ListItemItem
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import org.apache.commons.csv.CSVFormat
@@ -43,6 +45,7 @@ import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.Date
+import java.util.function.BinaryOperator
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var addList: ImageView
@@ -52,6 +55,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var delBtn: Button
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var mDrawerLayout: DrawerLayout
+    private var hovFlag : Boolean = false
     private var listCbs: MutableList<Int> = arrayListOf()
     private var listArr: MutableList<ListItem> = arrayListOf()
     private val viewModel: MnemosyneViewModel by viewModels {
@@ -120,6 +124,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    // TODO: fix parser
     @RequiresApi(Build.VERSION_CODES.O)
     private val getFile =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -131,14 +136,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 val csvParser = CSVParser(
                     reader, CSVFormat.DEFAULT
                         .withHeader("Title", "Items")
+                        .withSkipHeaderRecord()
                         .withIgnoreHeaderCase()
                         .withTrim()
                 )
                 for ((index, csvRecord) in csvParser.withIndex()) {
-                    print(csvRecord.toString())
-                    if (index == 0) {
-                        continue
-                    }
                     val title = csvRecord.get("Title")
                     val items = csvRecord.get("Items")
                     println("Record No - " + csvRecord.recordNumber)
@@ -146,7 +148,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     println("Title : $title")
                     println("Items : $items")
                     println("---------------")
-                    var itemArr: MutableList<String> = items.split("#@!").toMutableList()
+                    var itemArr: MutableList<ListItemItem> = mutableListOf()
+                    for((index, item) in items.split("#@!").withIndex()) {
+                        itemArr[index].text = item
+                    }
                     itemArr.removeLast()
 
                     viewModel.addNewItem(title, itemArr)
@@ -154,6 +159,96 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 this.recreate()
             }
         }
+
+    private fun recursFun(currentNode: TreeNode<String>, currentView: View) {
+        if(currentNode.children == null) {
+            //write regular to currentview
+            var leaf: View = LayoutInflater.from(this).inflate(R.layout.listmain, null)
+            var currentList : ListItem = ListItem(0, "", mutableListOf())
+
+            title_text = leaf.findViewById(R.id.title_text)
+            title_text.text = currentNode.value
+
+            for(list in listArr) {
+                if (list.list_title == currentNode.value) {
+                    currentList = list
+                    break
+                }
+            }
+
+            //sets up an invisible id for duplicates and collisions and such
+            var list_id: TextView = leaf.findViewById(R.id.list_id)
+            list_id.text = currentList.id.toString()
+            list_id.visibility = View.GONE
+
+            //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
+            var rb: RadioButton = leaf.findViewById(R.id.radiob)
+            rb.visibility = View.GONE
+            rb.setOnClickListener {
+                if (hovFlag == false) {
+                    val viewIntent = Intent(this, ViewActivity::class.java)
+                    viewIntent.putExtra("id", currentList.id.toInt())
+                    this.startActivity(viewIntent)
+                }
+                else {
+                    val historyIntent = Intent(this, HistoryActivity::class.java)
+                    historyIntent.putExtra("id", currentList.id.toInt())
+                    this.startActivity(historyIntent)
+                }
+
+            }
+
+            //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
+            var cb: CheckBox = leaf.findViewById(R.id.checkb)
+            cb.visibility = View.GONE
+            cb.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    listCbs.add(currentList.id)
+                } else {
+                    listCbs.remove(currentList.id)
+                }
+            }
+
+            //if view is clicked anywhere else, go to play to play that quiz
+            leaf.setOnClickListener {
+                val playIntent = Intent(this, PlayActivity::class.java)
+                playIntent.putExtra("id", currentList.id.toInt())
+                playIntent.putExtra("title", currentList.list_title)
+
+                this.startActivity(playIntent)
+            }
+
+            //go to page for editing list
+            editBtn = leaf.findViewById(R.id.edit_list)
+            editBtn.setOnClickListener {
+                val editIntent = Intent(this, EditActivity::class.java)
+                editIntent.putExtra("id", currentList.id);
+                this.startActivity(editIntent)
+            }
+
+            //delete list from db and then recreate page
+            delBtn = leaf.findViewById(R.id.dele_list)
+            delBtn.setOnClickListener {
+                viewModel.deleteItem(currentList.id)
+                Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
+                this.recreate()
+            }
+            var recycler : RecyclerView = currentView.findViewById(R.id.expandRecycler)
+            // TODO:  
+            recycler.addView(leaf)
+        }
+        else {
+            for(child in currentNode.children) {
+                var expand: View = LayoutInflater.from(this).inflate(R.layout.expand, null)
+                var expandTitle : TextView = expand.findViewById(R.id.expand_title)
+                var recycler : RecyclerView = expand.findViewById(R.id.expandRecycler)
+                expandTitle.text = child.value
+                // TODO:  
+                recycler.addView(expand)
+                recursFun(child, expand)
+            }
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -259,36 +354,23 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
                 Log.d("tree", finalArr.toString())
 
-                //follow
-                /*
+
                 for (x in finalArr) {
                     //move to root node
-                    var y = x.getAncestor()
+                    var y = x?.getAncestor()
                     //write root node to lin_main
-                    var expand = ExpandableListView(this)
-                    expand. = y?.value
+                    var expand: View = LayoutInflater.from(this).inflate(R.layout.expand, null)
+                    var expandTitle : TextView = expand.findViewById(R.id.expand_title)
+                    expandTitle.text = y?.value
+                    // TODO:  
                     lin_main.addView(expand)
                     //call recursfun w current node and view
-                    recursFun(rootNode, expand)
+                    if (y != null) {
+                        recursFun(y, expand)
+                    }
                 }
 
-                private fun recursFun(currentNode: TreeNode<String>, currentView: ExpandableListView) {
-                    if(currentNode.children == null) {
-                        //write regular lin_main to currentview
-
-                        currentView.addView()
-                    }
-                    else {
-                        for(child in currentNode.children) {
-                            var expand: ExpandableListView =
-                                expand.text = rootNode.value
-                            currentView.addView(expand)
-                            recursFun(child, expand)
-                        }
-                    }
-                }*/
-
-                for (x in 0 until listArr.size) {
+                /*for (x in 0 until listArr.size) {
 
 
                     //inflates view for each row that has one list
@@ -348,7 +430,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                     //add the listview
                     lin_main.addView(view)
-                }
+                }*/
             }
         }
         viewModel.retrieveItems().observe(this, listObserver)
@@ -378,12 +460,28 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
                         val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
                         val rb: RadioButton = horizont.getChildAt(0) as RadioButton
+                        hovFlag = false
 
                         rb.visibility = View.VISIBLE
                     }
                     topAppBar.menu.findItem(R.id.more_item).isVisible = false
                     topAppBar.menu.findItem(R.id.cancel_item).isVisible = true
                 }
+
+                R.id.history_activity -> {
+                    val layoutChildren: Int = lin_main.childCount
+                    for (x in 0 until layoutChildren) {
+                        val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
+                        val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
+                        val rb: RadioButton = horizont.getChildAt(0) as RadioButton
+                        hovFlag = true
+
+                        rb.visibility = View.VISIBLE
+                    }
+                    topAppBar.menu.findItem(R.id.more_item).isVisible = false
+                    topAppBar.menu.findItem(R.id.cancel_item).isVisible = true
+                }
+
                 //go to settings
                 R.id.settings_activity -> {
                     val settingsIntent = Intent(this, SettingsActivity::class.java)
@@ -447,7 +545,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, LocalDateTime.now().toString())
                 values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
                 values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                val uri = resolver.insert(MediaStore.Files.getContentUri("external"), values)
+                    val uri = resolver.insert(MediaStore.Files.getContentUri("external"), values)
                     if (uri != null) {
                         val writer = resolver.openOutputStream(uri)?.bufferedWriter(charset = Charset.defaultCharset())
                         val csvPrinter = CSVPrinter(

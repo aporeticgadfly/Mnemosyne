@@ -21,8 +21,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ListItem
+import com.example.inventory.data.ListItemItem
+import com.example.inventory.data.Session
+import com.example.inventory.data.SettingBool
+import com.example.inventory.data.SettingInt
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
@@ -40,7 +49,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
     fun updateItem(
         itemId: Int,
         list_title: String,
-        list_items: MutableList<String>
+        list_items: MutableList<ListItemItem>
     ) {
         val updatedItem = getUpdatedItemEntry(itemId, list_items, list_title)
         updateItem(updatedItem)
@@ -59,7 +68,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
     /**
      * Inserts the new Item into database.
      */
-    fun addNewItem(list_title: String, list_items: MutableList<String>) {
+    fun addNewItem(list_title: String, list_items: MutableList<ListItemItem>) {
         val newItem = getNewItemEntry(list_title, list_items)
         insertItem(newItem)
     }
@@ -114,7 +123,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
      * Returns an instance of the [Item] entity class with the item info entered by the user.
      * This will be used to add a new entry to the Inventory database.
      */
-    private fun getNewItemEntry(list_title: String, list_items: MutableList<String>): ListItem {
+    private fun getNewItemEntry(list_title: String, list_items: MutableList<ListItemItem>): ListItem {
         return ListItem(
             list_title = list_title,
             list_items = list_items
@@ -127,7 +136,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
      */
     private fun getUpdatedItemEntry(
         itemId: Int,
-        list_items: MutableList<String>,
+        list_items: MutableList<ListItemItem>,
         list_title: String
     ): ListItem {
         return ListItem(
@@ -135,6 +144,107 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
             list_title = list_title,
             list_items = list_items
         )
+    }
+
+    fun getSessionsView(id: Int): LiveData<MutableList<Session>> {
+        return itemDao.getSessions(id).asLiveData()
+    }
+
+    fun addSession(session: Session) {
+        insertSessionItem(session)
+    }
+
+    private fun insertSessionItem(session: Session) {
+        viewModelScope.launch {
+            itemDao.insert(session)
+        }
+    }
+
+    fun updateSession(session: Session) {
+        updateSessionItem(session)
+    }
+
+    private fun updateSessionItem(session: Session) {
+        viewModelScope.launch {
+            itemDao.update(session)
+        }
+    }
+
+    fun deleteSession(id: Int) {
+        viewModelScope.launch {
+            itemDao.sessionDelete(id)
+        }
+    }
+
+
+
+
+    fun retrieveSettingBool(id: Int) : LiveData<SettingBool> {
+        return itemDao.getSettingBool(id).asLiveData()
+    }
+
+    fun retrieveSettingInt(id: Int) : LiveData<SettingInt> {
+        return itemDao.getSettingInt(id).asLiveData()
+    }
+
+    fun retrieveAllSettingsBool() : LiveData<MutableList<SettingBool>> {
+        return itemDao.getAllSettingBool().asLiveData()
+    }
+
+    fun retrieveAllSettingsInt() : LiveData<MutableList<SettingInt>> {
+        return itemDao.getAllSettingInt().asLiveData()
+    }
+
+    fun insertSettingInt(settingInt: SettingInt) {
+        insertSettingIntView(settingInt)
+    }
+
+    private fun insertSettingIntView(settingInt: SettingInt) {
+        viewModelScope.launch {
+            itemDao.insert(settingInt)
+        }
+    }
+
+    fun insertSettingBool(settingBool: SettingBool) {
+        insertSettingBoolView(settingBool)
+    }
+
+    private fun insertSettingBoolView(settingBool: SettingBool) {
+        viewModelScope.launch {
+            itemDao.insert(settingBool)
+        }
+    }
+
+    fun updateSettingInt(settingInt: SettingInt) {
+        updateSettingIntView(settingInt)
+    }
+
+    private fun updateSettingIntView(settingInt: SettingInt) {
+        viewModelScope.launch {
+            itemDao.update(settingInt)
+        }
+    }
+
+    fun updateSettingBool(settingBool: SettingBool) {
+        updateSettingBoolView(settingBool)
+    }
+
+    private fun updateSettingBoolView(settingBool: SettingBool) {
+        viewModelScope.launch {
+            itemDao.update(settingBool)
+        }
+    }
+
+    fun deleteSettingBools() {
+        viewModelScope.launch {
+            itemDao.settingsResetBool()
+        }
+    }
+
+    fun deleteSettingInts() {
+        viewModelScope.launch {
+            itemDao.settingsResetInt()
+        }
     }
 }
 

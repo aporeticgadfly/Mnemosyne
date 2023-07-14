@@ -19,6 +19,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import com.example.inventory.data.ListItem
+import com.example.inventory.data.ListItemItem
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
@@ -31,7 +32,7 @@ class PlayActivity : AppCompatActivity() {
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var mDrawerLayout: DrawerLayout
     private var num_guessed: Int = 0
-    private var sessionObj: MutableMap<String, MutableList<String>> = mutableMapOf("correct" to mutableListOf(), "wrong" to mutableListOf())
+    private var sessionObj: MutableMap<String, MutableList<ListItemItem>> = mutableMapOf("correct" to mutableListOf(), "wrong" to mutableListOf())
 
     private val viewModel: MnemosyneViewModel by viewModels {
         MnemosyneViewModelFactory(
@@ -40,7 +41,7 @@ class PlayActivity : AppCompatActivity() {
         )
     }
 
-    fun startFinish(sessionObj: MutableMap<String, MutableList<String>>, list_title: String, id: Int) {
+    fun startFinish(sessionObj: MutableMap<String, MutableList<ListItemItem>>, list_title: String, id: Int) {
         val finishIntent = Intent(this, FinishActivity::class.java)
         finishIntent.putExtra("correct", ArrayList(sessionObj["correct"]))
         finishIntent.putExtra("wrong", ArrayList(sessionObj["wrong"]))
@@ -76,7 +77,7 @@ class PlayActivity : AppCompatActivity() {
                 override fun afterTextChanged(s: Editable?) {
                     for(x in list.list_items.indices) {
                         if (x < list.list_items.size) {
-                        if (s.toString() == list.list_items[x] && s.toString() != "") {
+                        if (s.toString() == list.list_items[x].text && s.toString() != "") {
                             sessionObj["correct"]?.add(list.list_items[x])
                             list.list_items.removeAt(x)
                             guessInput.setText("")
