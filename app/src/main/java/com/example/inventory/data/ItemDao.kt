@@ -67,35 +67,18 @@ interface ItemDao {
     @Query("DELETE from Session WHERE id = :id")
     suspend fun sessionDelete(id: Int)
 
+    @Query("DELETE from Session")
+    suspend fun sessionsDelete()
 
+    @Query("DELETE FROM Session WHERE id == MIN(id)")
+    suspend fun deleteLast()
 
-    @Query("SELECT * from SettingBool WHERE id = :id")
-    fun getSettingBool(id: Int): Flow<SettingBool>
+    @Query("DELETE from Session WHERE id < :cutoff")
+    suspend fun deleteCutoff(cutoff: Int)
 
-    @Query("SELECT * from SettingInt WHERE id = :id")
-    fun getSettingInt(id: Int): Flow<SettingInt>
+    @Query("SELECT COUNT(*) as count FROM Session")
+    fun sessionNum() : Int
 
-    @Query("SELECT * from SettingBool")
-    fun getAllSettingBool(): Flow<MutableList<SettingBool>>
-
-    @Query("SELECT * from SettingInt")
-    fun getAllSettingInt(): Flow<MutableList<SettingInt>>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(settingInt: SettingInt)
-
-    @Update
-    suspend fun update(settingInt: SettingInt)
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(settingBool: SettingBool)
-
-    @Update
-    suspend fun update(settingBool: SettingBool)
-
-    @Query("DELETE from SettingBool")
-    suspend fun settingsResetBool()
-
-    @Query("DELETE from SettingInt")
-    suspend fun settingsResetInt()
+    @Query("SELECT id FROM Session WHERE MIN(id)")
+    fun lowestId() : Int
 }

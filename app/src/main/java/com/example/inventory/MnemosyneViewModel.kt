@@ -21,17 +21,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
 import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ListItem
 import com.example.inventory.data.ListItemItem
 import com.example.inventory.data.Session
-import com.example.inventory.data.SettingBool
-import com.example.inventory.data.SettingInt
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
@@ -176,74 +169,29 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
         }
     }
 
-
-
-
-    fun retrieveSettingBool(id: Int) : LiveData<SettingBool> {
-        return itemDao.getSettingBool(id).asLiveData()
-    }
-
-    fun retrieveSettingInt(id: Int) : LiveData<SettingInt> {
-        return itemDao.getSettingInt(id).asLiveData()
-    }
-
-    fun retrieveAllSettingsBool() : LiveData<MutableList<SettingBool>> {
-        return itemDao.getAllSettingBool().asLiveData()
-    }
-
-    fun retrieveAllSettingsInt() : LiveData<MutableList<SettingInt>> {
-        return itemDao.getAllSettingInt().asLiveData()
-    }
-
-    fun insertSettingInt(settingInt: SettingInt) {
-        insertSettingIntView(settingInt)
-    }
-
-    private fun insertSettingIntView(settingInt: SettingInt) {
+    fun deleteSessions() {
         viewModelScope.launch {
-            itemDao.insert(settingInt)
+            itemDao.sessionsDelete()
         }
     }
 
-    fun insertSettingBool(settingBool: SettingBool) {
-        insertSettingBoolView(settingBool)
+    fun sessionNum(): Int {
+        return itemDao.sessionNum()
     }
 
-    private fun insertSettingBoolView(settingBool: SettingBool) {
+    fun lowestId(): Int {
+        return itemDao.lowestId()
+    }
+
+    fun deleteCutoff(cutoff: Int) {
         viewModelScope.launch {
-            itemDao.insert(settingBool)
+            itemDao.deleteCutoff(cutoff)
         }
     }
 
-    fun updateSettingInt(settingInt: SettingInt) {
-        updateSettingIntView(settingInt)
-    }
-
-    private fun updateSettingIntView(settingInt: SettingInt) {
+    fun deleteLast() {
         viewModelScope.launch {
-            itemDao.update(settingInt)
-        }
-    }
-
-    fun updateSettingBool(settingBool: SettingBool) {
-        updateSettingBoolView(settingBool)
-    }
-
-    private fun updateSettingBoolView(settingBool: SettingBool) {
-        viewModelScope.launch {
-            itemDao.update(settingBool)
-        }
-    }
-
-    fun deleteSettingBools() {
-        viewModelScope.launch {
-            itemDao.settingsResetBool()
-        }
-    }
-
-    fun deleteSettingInts() {
-        viewModelScope.launch {
-            itemDao.settingsResetInt()
+            itemDao.deleteLast()
         }
     }
 }

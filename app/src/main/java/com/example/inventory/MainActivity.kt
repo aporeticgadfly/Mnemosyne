@@ -31,6 +31,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.ListItem
 import com.example.inventory.data.ListItemItem
@@ -238,14 +239,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             recycler.addView(leaf)
         }
         else {
-            for(child in currentNode.children) {
-                var expand: View = LayoutInflater.from(this).inflate(R.layout.expand, null)
-                var expandTitle : TextView = expand.findViewById(R.id.expand_title)
-                var recycler : RecyclerView = expand.findViewById(R.id.expandRecycler)
-                expandTitle.text = child.value
-                // TODO:  
-                recycler.addView(expand)
-                recursFun(child, expand)
+            var expand: RecyclerView = currentView.findViewById(R.id.expandRecycler)
+            expand.adapter = MnemosyneAdapter(currentNode.children, this, viewModel)
+            //title
+            for((index, child) in currentNode.children.withIndex()) {
+                var childView : RecyclerView = expand.getChildAt(index).findViewById(R.id.expandRecycler)
+                recursFun(child, childView)
             }
         }
     }
@@ -539,12 +538,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 //if given, do a createdocumentforresult
 
                 val createThread = Thread {
+                    val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+                    val folder = prefs.getString("exportFolder", "")
 
                 val resolver = applicationContext.contentResolver
                 val values = ContentValues()
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, LocalDateTime.now().toString())
                 values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, folder)
                     val uri = resolver.insert(MediaStore.Files.getContentUri("external"), values)
                     if (uri != null) {
                         val writer = resolver.openOutputStream(uri)?.bufferedWriter(charset = Charset.defaultCharset())

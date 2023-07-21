@@ -19,8 +19,10 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.inventory.data.ListItemItem
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -38,7 +40,7 @@ class CreateActivity : AppCompatActivity() {
     private lateinit var mDrawerLayout: DrawerLayout
     private var list_text: String = ""
     private var title_text: String = ""
-    private var listArr: MutableList<String> = arrayListOf()
+    private var listArr: MutableList<ListItemItem> = arrayListOf()
     private var count: Int = 0
     private var countArr: MutableList<Int> = arrayListOf()
 
@@ -139,7 +141,7 @@ class CreateActivity : AppCompatActivity() {
                 itemLin = linear_layout2.getChildAt(x) as LinearLayout
                 itemList = itemLin.findViewById(R.id.list_itemlist)
                 list_text = itemList.text.toString()
-                listArr.add(list_text)
+                listArr[x].text = list_text
             }
             viewModel.addNewItem(title_text, listArr)
             val saveIntent = Intent(this, MainActivity::class.java)

@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.preference.Preference
+import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationView
 
 class SettingsActivity : AppCompatActivity() {
@@ -20,6 +22,8 @@ class SettingsActivity : AppCompatActivity() {
             .beginTransaction()
             .replace(R.id.settings_container, MySettingsFragment())
             .commit()
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
 
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.topAppBar)

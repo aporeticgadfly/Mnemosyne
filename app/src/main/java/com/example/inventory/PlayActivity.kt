@@ -18,8 +18,10 @@ import androidx.appcompat.app.ActionBar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.example.inventory.data.ListItem
 import com.example.inventory.data.ListItemItem
+import com.example.inventory.data.Session
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
@@ -30,6 +32,7 @@ class PlayActivity : AppCompatActivity() {
     private lateinit var guessInput: EditText
     private lateinit var finishBtn: Button
     private lateinit var topAppBar: MaterialToolbar
+    private lateinit var submitBtn: Button
     private lateinit var mDrawerLayout: DrawerLayout
     private var num_guessed: Int = 0
     private var sessionObj: MutableMap<String, MutableList<ListItemItem>> = mutableMapOf("correct" to mutableListOf(), "wrong" to mutableListOf())
@@ -42,6 +45,18 @@ class PlayActivity : AppCompatActivity() {
     }
 
     fun startFinish(sessionObj: MutableMap<String, MutableList<ListItemItem>>, list_title: String, id: Int) {
+        val time = elapsedTime.text.toString().split(":")
+        val seconds = (time[0].toInt()*60) + time[1].toInt()
+        val session: Session = Session(0, list_title.toString(), id, seconds,
+            sessionObj["correct"]!!, sessionObj["wrong"]!!
+        )
+        viewModel.addSession(session)
+        val sessionNum = viewModel.sessionNum()
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val seek = sharedPreferences.getInt("setHistory", 100)
+        if(sessionNum > seek) {
+            viewModel.deleteLast()
+        }
         val finishIntent = Intent(this, FinishActivity::class.java)
         finishIntent.putExtra("correct", ArrayList(sessionObj["correct"]))
         finishIntent.putExtra("wrong", ArrayList(sessionObj["wrong"]))
@@ -63,8 +78,6 @@ class PlayActivity : AppCompatActivity() {
         guessInput = findViewById(R.id.editTextTextPersonName3)
         finishBtn = findViewById(R.id.finish_button)
 
-        //flag for no automatic empty?
-
         elapsedTime.start()
         numGuessed.text = num_guessed.toString()
 
@@ -73,32 +86,72 @@ class PlayActivity : AppCompatActivity() {
             list.list_items.removeAt(list.list_items.size - 1)
             Log.d("", list.list_items.toString())
 
-            guessInput.addTextChangedListener(object : TextWatcher { //may be too computationally heavy
-                override fun afterTextChanged(s: Editable?) {
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val instantVal = sharedPreferences.getBoolean("noInstant", false)
+            submitBtn = findViewById(R.id.submitButton)
+
+            if(instantVal == true) {
+                //show button, change algorithm
+                submitBtn.visibility = View.VISIBLE
+                submitBtn.setOnClickListener {
+                    val textVal = guessInput.text
                     for(x in list.list_items.indices) {
                         if (x < list.list_items.size) {
-                        if (s.toString() == list.list_items[x].text && s.toString() != "") {
-                            sessionObj["correct"]?.add(list.list_items[x])
-                            list.list_items.removeAt(x)
-                            guessInput.setText("")
-                            num_guessed++
-                            numGuessed.text = num_guessed.toString()
-                        }
+                            if (textVal.toString() == list.list_items[x].text && textVal.toString() != "") {
+                                sessionObj["correct"]?.add(list.list_items[x])
+                                list.list_items.removeAt(x)
+                                guessInput.setText("")
+                                num_guessed++
+                                numGuessed.text = num_guessed.toString()
+                            }
                         }
                     }
                     if(list.list_items.size == 0) {
                         startFinish(sessionObj, list.list_title, list.id.toInt())
                     }
                 }
+            }
+            else {
+                //hide button, change algorithm
+                submitBtn.visibility = View.GONE
+                guessInput.addTextChangedListener(object : TextWatcher { //may be too computationally heavy
+                    override fun afterTextChanged(s: Editable?) {
+                        for(x in list.list_items.indices) {
+                            if (x < list.list_items.size) {
+                                if (s.toString() == list.list_items[x].text && s.toString() != "") {
+                                    sessionObj["correct"]?.add(list.list_items[x])
+                                    list.list_items.removeAt(x)
+                                    guessInput.setText("")
+                                    num_guessed++
+                                    numGuessed.text = num_guessed.toString()
+                                }
+                            }
+                        }
+                        if(list.list_items.size == 0) {
+                            startFinish(sessionObj, list.list_title, list.id.toInt())
+                        }
+                    }
 
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                }
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                    }
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                }
-            })
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    }
+                })
+            }
 
             finishBtn.setOnClickListener {
+                val time = elapsedTime.text.toString().split(":")
+                val seconds = (time[0].toInt()*60) + time[1].toInt()
+                val session: Session = Session(0, list_title.toString(), id, seconds,
+                    sessionObj["correct"]!!, sessionObj["wrong"]!!
+                )
+                viewModel.addSession(session)
+                val sessionNum = viewModel.sessionNum()
+                val seek = sharedPreferences.getInt("setHistory", 100)
+                if(sessionNum > seek) {
+                    viewModel.deleteLast()
+                }
                 val finishIntent = Intent(this, FinishActivity::class.java)
                 sessionObj["wrong"] = list.list_items
                 finishIntent.putExtra("correct", ArrayList(sessionObj["correct"]))

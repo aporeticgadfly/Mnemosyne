@@ -15,11 +15,6 @@
         android:key="clearHistory"
         />
 
-    <Preference
-        android:title="Reset to default settings"
-        android:key="resetSettings"
-        />
-
     <SeekBarPreference
         android:title="Set history record count"
         android:key="setHistory"

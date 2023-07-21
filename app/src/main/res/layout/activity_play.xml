@@ -104,14 +104,14 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:text="Name"
-        app:layout_constraintBottom_toBottomOf="@+id/button9"
-        app:layout_constraintEnd_toStartOf="@+id/button9"
+        app:layout_constraintBottom_toBottomOf="@+id/submitButton"
+        app:layout_constraintEnd_toStartOf="@+id/submitButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/button9"
+        app:layout_constraintTop_toTopOf="@+id/submitButton"
         style="@style/WhiteEdit"/>
 
     <Button
-        android:id="@+id/button9"
+        android:id="@+id/submitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Submit"
@@ -120,7 +120,8 @@
         app:layout_constraintHorizontal_bias="0.902"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        style="@style/WhiteBackground"/>
+        style="@style/WhiteBackground"
+        android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"
