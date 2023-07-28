@@ -58,8 +58,11 @@ interface ItemDao {
     @Query("SELECT * from Session WHERE list_id = :list_id")
     fun getSessions(list_id: Int): Flow<MutableList<Session>>
 
+    @Query("SELECT * from Session WHERE id = :id")
+    fun getSession(id: Long) : Session
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(session: Session)
+    suspend fun insert(session: Session) : Long
 
     @Update
     suspend fun update(session: Session)
@@ -70,7 +73,7 @@ interface ItemDao {
     @Query("DELETE from Session")
     suspend fun sessionsDelete()
 
-    @Query("DELETE FROM Session WHERE id == MIN(id)")
+    @Query("DELETE FROM Session WHERE id = (SELECT id FROM Session ORDER BY id LIMIT 1)")
     suspend fun deleteLast()
 
     @Query("DELETE from Session WHERE id < :cutoff")
@@ -79,6 +82,6 @@ interface ItemDao {
     @Query("SELECT COUNT(*) as count FROM Session")
     fun sessionNum() : Int
 
-    @Query("SELECT id FROM Session WHERE MIN(id)")
+    @Query("SELECT id FROM Session ORDER BY id DESC LIMIT 1")
     fun lowestId() : Int
 }

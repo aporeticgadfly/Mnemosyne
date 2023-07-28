@@ -16,10 +16,17 @@
 package com.example.inventory
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.inventory.data.ItemRoomDatabase
 
 
 class Mnemosyne : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        // Set the default night mode to MODE_NIGHT_YES (Dark mode)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+    }
     // Using by lazy so the database is only created when needed
     // rather than when the application starts
     val database: ItemRoomDatabase by lazy { ItemRoomDatabase.getDatabase(this) }

@@ -17,6 +17,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -58,7 +59,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var mDrawerLayout: DrawerLayout
     private var hovFlag : Boolean = false
     private var listCbs: MutableList<Int> = arrayListOf()
-    private var listArr: MutableList<ListItem> = arrayListOf()
+    private var globalListArr: MutableList<ListItem> = arrayListOf()
+    private var leafArr: MutableList<LinearLayout> = arrayListOf()
     private val viewModel: MnemosyneViewModel by viewModels {
         MnemosyneViewModelFactory(
             (this?.application as Mnemosyne).database
@@ -75,6 +77,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         fun addChild(node: TreeNode<T>) {
             children.add(node)
             node.parent = this
+        }
+
+        fun fullName() : String {
+            if (parent == null) {
+                return this.value.toString()
+            }
+            while (parent != null) {
+                return parent!!.fullName().toString() + "::" + this.value
+            }
+            return this.value.toString()
         }
 
         override fun toString(): String {
@@ -150,11 +162,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     println("Items : $items")
                     println("---------------")
                     var itemArr: MutableList<ListItemItem> = mutableListOf()
-                    for((index, item) in items.split("#@!").withIndex()) {
-                        itemArr[index].text = item
+                    for(item in items.split("#@!")) {
+                        val listItemItem = ListItemItem(id = 0, text = item)
+                        itemArr.add(listItemItem)
                     }
-                    itemArr.removeLast()
-
+                    //itemArr.removeLast()
                     viewModel.addNewItem(title, itemArr)
                 }
                 this.recreate()
@@ -162,89 +174,101 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
     private fun recursFun(currentNode: TreeNode<String>, currentView: View) {
-        if(currentNode.children == null) {
-            //write regular to currentview
-            var leaf: View = LayoutInflater.from(this).inflate(R.layout.listmain, null)
-            var currentList : ListItem = ListItem(0, "", mutableListOf())
+        //use children; level by level?
+        //each iteration writes children nodes, then passes children nodes/views to itself again
+        //in branch, set title; in leaf set up all else
+        //each node can have leaves and branches; must detect all leaves and branches on each node; leaf is a child node that has no children
+        var expandLin: LinearLayout = currentView.findViewById(R.id.expandLin)
+        for (child in currentNode.children) {
+            if (child.children.size == 0) {
+                val leafLayout = LayoutInflater.from(this).inflate(R.layout.listmain, null)
+                var currentList: ListItem = ListItem(0, "", mutableListOf())
 
-            title_text = leaf.findViewById(R.id.title_text)
-            title_text.text = currentNode.value
+                title_text = leafLayout.findViewById(R.id.title_text)
+                title_text.text = child.value
 
-            for(list in listArr) {
-                if (list.list_title == currentNode.value) {
-                    currentList = list
-                    break
-                }
-            }
-
-            //sets up an invisible id for duplicates and collisions and such
-            var list_id: TextView = leaf.findViewById(R.id.list_id)
-            list_id.text = currentList.id.toString()
-            list_id.visibility = View.GONE
-
-            //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
-            var rb: RadioButton = leaf.findViewById(R.id.radiob)
-            rb.visibility = View.GONE
-            rb.setOnClickListener {
-                if (hovFlag == false) {
-                    val viewIntent = Intent(this, ViewActivity::class.java)
-                    viewIntent.putExtra("id", currentList.id.toInt())
-                    this.startActivity(viewIntent)
-                }
-                else {
-                    val historyIntent = Intent(this, HistoryActivity::class.java)
-                    historyIntent.putExtra("id", currentList.id.toInt())
-                    this.startActivity(historyIntent)
+                for (list in globalListArr) {
+                    if (list.list_title == child.fullName()) {
+                        //MUST BE FULLY QUALIFIED NAME; DO AT OTHER PLACE TOO
+                        currentList = list
+                        break
+                    }
                 }
 
-            }
+                //sets up an invisible id for duplicates and collisions and such
+                var list_id: TextView = leafLayout.findViewById(R.id.list_id)
+                list_id.text = currentList.id.toString()
+                list_id.visibility = View.GONE
 
-            //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
-            var cb: CheckBox = leaf.findViewById(R.id.checkb)
-            cb.visibility = View.GONE
-            cb.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) {
-                    listCbs.add(currentList.id)
-                } else {
-                    listCbs.remove(currentList.id)
+                //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
+                var rb: RadioButton = leafLayout.findViewById(R.id.radiob)
+                rb.visibility = View.GONE
+                rb.setOnClickListener {
+                    if (hovFlag == false) {
+                        val viewIntent = Intent(this, ViewActivity::class.java)
+                        viewIntent.putExtra("id", currentList.id.toInt())
+                        this.startActivity(viewIntent)
+                    } else {
+                        val historyIntent = Intent(this, HistoryActivity::class.java)
+                        historyIntent.putExtra("id", currentList.id.toInt())
+                        this.startActivity(historyIntent)
+                    }
+
                 }
-            }
 
-            //if view is clicked anywhere else, go to play to play that quiz
-            leaf.setOnClickListener {
-                val playIntent = Intent(this, PlayActivity::class.java)
-                playIntent.putExtra("id", currentList.id.toInt())
-                playIntent.putExtra("title", currentList.list_title)
+                //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
+                var cb: CheckBox = leafLayout.findViewById(R.id.checkb)
+                cb.visibility = View.GONE
+                cb.setOnCheckedChangeListener { buttonView, isChecked ->
+                    if (isChecked) {
+                        listCbs.add(currentList.id)
+                    } else {
+                        listCbs.remove(currentList.id)
+                    }
+                }
 
-                this.startActivity(playIntent)
-            }
+                //if view is clicked anywhere else, go to play to play that quiz
+                leafLayout.setOnClickListener {
+                    val playIntent = Intent(this, PlayActivity::class.java)
+                    playIntent.putExtra("id", currentList.id.toInt())
+                    playIntent.putExtra("title", currentList.list_title)
+                    this.startActivity(playIntent)
+                }
 
-            //go to page for editing list
-            editBtn = leaf.findViewById(R.id.edit_list)
-            editBtn.setOnClickListener {
-                val editIntent = Intent(this, EditActivity::class.java)
-                editIntent.putExtra("id", currentList.id);
-                this.startActivity(editIntent)
-            }
+                //go to page for editing list
+                editBtn = leafLayout.findViewById(R.id.edit_list)
+                editBtn.setOnClickListener {
+                    val editIntent = Intent(this, EditActivity::class.java)
+                    editIntent.putExtra("id", currentList.id);
+                    this.startActivity(editIntent)
+                }
 
-            //delete list from db and then recreate page
-            delBtn = leaf.findViewById(R.id.dele_list)
-            delBtn.setOnClickListener {
-                viewModel.deleteItem(currentList.id)
-                Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
-                this.recreate()
-            }
-            var recycler : RecyclerView = currentView.findViewById(R.id.expandRecycler)
-            // TODO:  
-            recycler.addView(leaf)
-        }
-        else {
-            var expand: RecyclerView = currentView.findViewById(R.id.expandRecycler)
-            expand.adapter = MnemosyneAdapter(currentNode.children, this, viewModel)
-            //title
-            for((index, child) in currentNode.children.withIndex()) {
-                var childView : RecyclerView = expand.getChildAt(index).findViewById(R.id.expandRecycler)
-                recursFun(child, childView)
+                //delete list from db and then recreate page
+                delBtn = leafLayout.findViewById(R.id.dele_list)
+                delBtn.setOnClickListener {
+                    viewModel.deleteItem(currentList.id)
+                    leafArr.remove(leafLayout)
+                    Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
+                    this.recreate()
+                }
+                leafArr.add(leafLayout as LinearLayout)
+                expandLin.addView(leafLayout)
+            } else {
+                val expandLayout = LayoutInflater.from(this).inflate(R.layout.expand, null)
+                val title: TextView = expandLayout.findViewById(R.id.expand_title)
+                title.text = child.value
+                expandLin.addView(expandLayout)
+                var imgBtn : ImageButton = expandLayout.findViewById(R.id.imagebtn)
+                var expan : LinearLayout = expandLayout.findViewById(R.id.expandLin)
+                imgBtn.setOnClickListener {
+                    if(expan.visibility == View.GONE) {
+                        expan.visibility = View.VISIBLE
+                    }
+                    else {
+                        expan.visibility = View.GONE
+                    }
+                }
+                recursFun(child, expandLayout)
             }
         }
     }
@@ -265,11 +289,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         lin_main = findViewById(R.id.lin_main)
         val listObserver = Observer<MutableList<ListItem>> { listArr ->
             if (listArr.isNotEmpty()) { //null check
-                val layoutChildren: Int = lin_main.childCount
+                globalListArr = listArr
                 //removes any views that didnt get destroyed so no false duplicates
-                for (x in 0 until layoutChildren) {
-                    lin_main.removeViewAt(x)
-                }
+                /*for (leaf in leafArr) {
+                    val listID : TextView = leaf.findViewById(R.id.list_id)
+                    viewModel.deleteItem(listID.text.toString().toInt())
+                    leafArr.remove(leaf)
+                }*/
 
                 //
                 //writing the tree
@@ -281,30 +307,40 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 var matchFlag: Boolean = false
                 var matchFlag2: Boolean = false
                 var matchFlag3: Boolean = false
+                var nodeSkipFlag : Boolean = false
 
-                for (x in 0 until listArr.size) {
-                    for (y in 0 until listArr[x].list_title.split("::").size) {
+                for (x in 0 until globalListArr.size) {
+                    if (globalListArr[x].list_title.split("::").size == 1) {
+                        var rootNode = TreeNode<String>(globalListArr[x].list_title.split("::")[0])
+                        finalArr.add(rootNode)
+                        continue
+                    }
+                    for (y in 0 until globalListArr[x].list_title.split("::").size) {
+                        //if is root node, check if already used
                         if (y == 0) {
                             for (node in nodeArr) {
                                 val ancestor = node?.getAncestor()
-                                if (ancestor?.value == listArr[x].list_title.split("::")[y]) {
+                                if (ancestor?.value == globalListArr[x].list_title.split("::")[y]) {
                                     previousNode = ancestor
                                     matchFlag = true
+                                    nodeSkipFlag = true
                                     break
                                 }
                             }
                             if (matchFlag == false) {
-                                var rootNode = TreeNode<String>(listArr[x].list_title.split("::")[y])
+                                var rootNode = TreeNode<String>(globalListArr[x].list_title.split("::")[y])
                                 previousNode = rootNode
                             }
                             else {
                                 matchFlag = false
                             }
                         } else {
-                            currentNode = TreeNode<String>(listArr[x].list_title.split("::")[y])
+                            currentNode = TreeNode<String>(globalListArr[x].list_title.split("::")[y])
                             if (previousNode?.children != null) {
-                                for (node in previousNode.children!!) {
+                                for ((index, node) in previousNode!!.children.withIndex()) {
                                     if (node.value == currentNode.value) {
+                                        intermediateNode = previousNode
+                                        previousNode = previousNode.children[index]
                                         matchFlag2 = true
                                         break
                                     }
@@ -326,10 +362,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         }
                     }
                     //check if on this level, other nodes w same value
-                    /*if (currentNode != null) {
-                        intermediateNode?.addChild(currentNode)
-                    }*/
-                    nodeArr.add(intermediateNode)
+                    if (nodeSkipFlag == true) {
+                        nodeSkipFlag = false
+                    }
+                    else {
+                        nodeArr.add(intermediateNode)
+                    }
                 }
                 for ((index, node) in nodeArr.withIndex()) {
                     if(index == 0) {
@@ -351,85 +389,106 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         matchFlag3 = false
                     }
                 }
-                Log.d("tree", finalArr.toString())
-
 
                 for (x in finalArr) {
                     //move to root node
                     var y = x?.getAncestor()
                     //write root node to lin_main
-                    var expand: View = LayoutInflater.from(this).inflate(R.layout.expand, null)
-                    var expandTitle : TextView = expand.findViewById(R.id.expand_title)
-                    expandTitle.text = y?.value
-                    // TODO:  
-                    lin_main.addView(expand)
-                    //call recursfun w current node and view
-                    if (y != null) {
-                        recursFun(y, expand)
+                    //handle leaves
+                    if (y?.children?.size == 0 || y?.children == null) {
+
+                        val leafLayout = LayoutInflater.from(this).inflate(R.layout.listmain, null)
+                        var currentList: ListItem = ListItem(0, "", mutableListOf())
+
+                        title_text = leafLayout.findViewById(R.id.title_text)
+                        title_text.text = y?.value
+                        for (list in globalListArr) {
+                            if (list.list_title == y?.value) {
+                                currentList = list
+                                break
+                            }
+                        }
+
+                        //sets up an invisible id for duplicates and collisions and such
+                        var list_id: TextView = leafLayout.findViewById(R.id.list_id)
+                        list_id.text = currentList.id.toString()
+                        list_id.visibility = View.GONE
+
+                        //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
+                        var rb: RadioButton = leafLayout.findViewById(R.id.radiob)
+                        rb.visibility = View.GONE
+                        rb.setOnClickListener {
+                            if (hovFlag == false) {
+                                val viewIntent = Intent(this, ViewActivity::class.java)
+                                viewIntent.putExtra("id", currentList.id.toInt())
+                                this.startActivity(viewIntent)
+                            } else {
+                                val historyIntent = Intent(this, HistoryActivity::class.java)
+                                historyIntent.putExtra("id", currentList.id.toInt())
+                                this.startActivity(historyIntent)
+                            }
+
+                        }
+
+                        //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
+                        var cb: CheckBox = leafLayout.findViewById(R.id.checkb)
+                        cb.visibility = View.GONE
+                        cb.setOnCheckedChangeListener { buttonView, isChecked ->
+                            if (isChecked) {
+                                listCbs.add(currentList.id)
+                            } else {
+                                listCbs.remove(currentList.id)
+                            }
+                        }
+
+                        //if view is clicked anywhere else, go to play to play that quiz
+                        leafLayout.setOnClickListener {
+                            val playIntent = Intent(this, PlayActivity::class.java)
+                            playIntent.putExtra("id", currentList.id.toInt())
+                            playIntent.putExtra("title", currentList.list_title)
+                            this.startActivity(playIntent)
+                        }
+
+                        //go to page for editing list
+                        editBtn = leafLayout.findViewById(R.id.edit_list)
+                        editBtn.setOnClickListener {
+                            val editIntent = Intent(this, EditActivity::class.java)
+                            editIntent.putExtra("id", currentList.id);
+                            this.startActivity(editIntent)
+                        }
+
+                        //delete list from db and then recreate page
+                        delBtn = leafLayout.findViewById(R.id.dele_list)
+                        delBtn.setOnClickListener {
+                            viewModel.deleteItem(currentList.id)
+                            leafArr.remove(leafLayout)
+                            Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
+                            this.recreate()
+                        }
+                        leafArr.add(leafLayout as LinearLayout)
+                        lin_main.addView(leafLayout)
                     }
-                }
-
-                /*for (x in 0 until listArr.size) {
-
-
-                    //inflates view for each row that has one list
-                    var view: View = LayoutInflater.from(this).inflate(R.layout.listmain, null)
-                    title_text = view.findViewById(R.id.title_text)
-                    //sets up an invisible id for duplicates and collisions and such
-                    var list_id: TextView = view.findViewById(R.id.list_id)
-                    list_id.text = listArr.elementAt(x).id.toString()
-                    list_id.visibility = View.GONE
-
-                    //sets title
-                    title_text.text = listArr.elementAt(x).list_title
-
-                    //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
-                    var rb: RadioButton = view.findViewById(R.id.radiob)
-                    rb.visibility = View.GONE
-                    rb.setOnClickListener {
-                        val viewIntent = Intent(this, ViewActivity::class.java)
-                        viewIntent.putExtra("id", listArr.elementAt(x).id.toInt())
-                        this.startActivity(viewIntent)
-                    }
-
-                    //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
-                    var cb: CheckBox = view.findViewById(R.id.checkb)
-                    cb.visibility = View.GONE
-                    cb.setOnCheckedChangeListener { buttonView, isChecked ->
-                        if (isChecked) {
-                            listCbs.add(listArr.elementAt(x).id)
-                        } else {
-                            listCbs.remove(listArr.elementAt(x).id)
+                    else {
+                        var expand: View = LayoutInflater.from(this).inflate(R.layout.expand, null)
+                        var expandTitle : TextView = expand.findViewById(R.id.expand_title)
+                        var expandLin : LinearLayout = expand.findViewById(R.id.expandLin)
+                        expandTitle.text = y?.value
+                        var imgBtn : ImageButton = expand.findViewById(R.id.imagebtn)
+                        imgBtn.setOnClickListener {
+                            if(expandLin.visibility == View.GONE) {
+                                expandLin.visibility = View.VISIBLE
+                            }
+                            else {
+                                expandLin.visibility = View.GONE
+                            }
+                        }
+                        lin_main.addView(expand)
+                        //call recursfun w current node and view
+                        if (y != null) {
+                            recursFun(y, expand)
                         }
                     }
-
-                    //if view is clicked anywhere else, go to play to play that quiz
-                    view.setOnClickListener {
-                        val playIntent = Intent(this, PlayActivity::class.java)
-                        playIntent.putExtra("id", listArr.elementAt(x).id.toInt())
-                        playIntent.putExtra("title", listArr.elementAt(x).list_title)
-
-                        this.startActivity(playIntent)
-                    }
-
-                    //go to page for editing list
-                    editBtn = view.findViewById(R.id.edit_list)
-                    editBtn.setOnClickListener {
-                        val editIntent = Intent(this, EditActivity::class.java)
-                        editIntent.putExtra("id", listArr.elementAt(x).id);
-                        this.startActivity(editIntent)
-                    }
-
-                    //delete list from db and then recreate page
-                    delBtn = view.findViewById(R.id.dele_list)
-                    delBtn.setOnClickListener {
-                        viewModel.deleteItem(listArr.elementAt(x).id)
-                        Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
-                        this.recreate()
-                    }
-                    //add the listview
-                    lin_main.addView(view)
-                }*/
+                }
             }
         }
         viewModel.retrieveItems().observe(this, listObserver)
@@ -454,10 +513,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             when (menuItem.itemId) {
                 // make rb visible so that view can know which list to display
                 R.id.view_activity -> {
-                    val layoutChildren: Int = lin_main.childCount
-                    for (x in 0 until layoutChildren) {
-                        val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
-                        val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
+                    for (leaf in leafArr) {
+                        val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
                         val rb: RadioButton = horizont.getChildAt(0) as RadioButton
                         hovFlag = false
 
@@ -468,10 +525,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
 
                 R.id.history_activity -> {
-                    val layoutChildren: Int = lin_main.childCount
-                    for (x in 0 until layoutChildren) {
-                        val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
-                        val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
+                    for (leaf in leafArr) {
+                        val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
                         val rb: RadioButton = horizont.getChildAt(0) as RadioButton
                         hovFlag = true
 
@@ -502,12 +557,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 mDrawerLayout.openDrawer(GravityCompat.START)
                 true
             }
-            //search for lists
-            R.id.search -> {
-                // edittext has to show up somewhere; save current state? then search through titles for matches
-                //how to return to default state without edittext
-                true
-            }
+
             //does nothing on its own, just opens submenu
             R.id.more -> {
 
@@ -515,17 +565,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
 
             R.id.cancel_item -> {
-                val layoutChildren: Int = lin_main.childCount
-                for (x in 0 until layoutChildren) {
-                    val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
-                    val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
+                for (leaf in leafArr) {
+                    val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
                     val cb: CheckBox = horizont.getChildAt(1) as CheckBox
                     val rb: RadioButton = horizont.getChildAt(0) as RadioButton
 
                     rb.visibility = View.GONE
                     cb.visibility = View.GONE
                 }
-                topAppBar.menu.findItem(R.id.search).isVisible = true
                 topAppBar.menu.findItem(R.id.confirm).isVisible = false
                 topAppBar.menu.findItem(R.id.more_item).isVisible = true
                 topAppBar.menu.findItem(R.id.cancel_item).isVisible = false
@@ -559,7 +606,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                             var itemsString: String = ""
                             for (item in createItem.list_items) {
-                                itemsString += item
+                                itemsString += item.text
                                 itemsString += "#@!"
                             }
                             //trim final delimiter here
@@ -579,10 +626,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         null
                     )
                     runOnUiThread {
-                        val layoutChildren: Int = lin_main.childCount
-                        for (x in 0 until layoutChildren) {
-                            val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
-                            val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
+                        for (leaf in leafArr) {
+                            val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
                             val cb: CheckBox = horizont.getChildAt(1) as CheckBox
 
                             cb.isChecked = false
@@ -590,7 +635,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         }
 
                         val topAppBar: MaterialToolbar = findViewById(R.id.topAppBar)
-                        topAppBar.menu.findItem(R.id.search).isVisible = true
                         topAppBar.menu.findItem(R.id.confirm).isVisible = false
                         topAppBar.menu.findItem(R.id.more_item).isVisible = true
                         topAppBar.menu.findItem(R.id.cancel_item).isVisible = false
@@ -604,17 +648,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             //submenu item of more; makes cbs visible for each list so user can choose which lists to export
             R.id.export_item -> {
-                val layoutChildren: Int = lin_main.childCount
-                for (x in 0 until layoutChildren) {
-                    val vert: LinearLayout = lin_main.getChildAt(x) as LinearLayout
-                    val horizont: LinearLayout = vert.getChildAt(0) as LinearLayout
+                for (leaf in leafArr) {
+                    val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
                     val cb: CheckBox = horizont.getChildAt(1) as CheckBox
 
                     cb.visibility = View.VISIBLE
                 }
                 //makes confirm button visible in lieu of search button
                 val topAppBar: MaterialToolbar = findViewById(R.id.topAppBar)
-                topAppBar.menu.findItem(R.id.search).isVisible = false
                 topAppBar.menu.findItem(R.id.confirm).isVisible = true
                 topAppBar.menu.findItem(R.id.more_item).isVisible = false
                 topAppBar.menu.findItem(R.id.cancel_item).isVisible = true

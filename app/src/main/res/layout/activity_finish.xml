@@ -160,6 +160,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/home_btn"
         app:layout_constraintVertical_bias="0.0"
+        android:textColor="@color/black"
         style="@style/WhiteBackground"/>
 
     <Button
@@ -174,6 +175,7 @@
         app:layout_constraintStart_toEndOf="@+id/retry_btn"
         app:layout_constraintVertical_bias="0.095"
         android:layout_marginBottom="30dp"
+        android:textColor="@color/black"
         android:layout_marginStart="70dp"
         style="@style/WhiteBackground"/>
 

@@ -29,7 +29,6 @@
             android:layout_gravity="center_vertical"
             android:inputType="textAutoComplete|textCapWords"
             android:singleLine="true"
-            android:text="Item..."
             style="@style/WhiteEdit"
             android:textColorHint="@color/white"
             android:textColor="@color/white"/>
@@ -41,6 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="15dp"
+        android:textColor="@color/black"
         android:text="@string/delete"
         style="@style/WhiteBackground"/>
 

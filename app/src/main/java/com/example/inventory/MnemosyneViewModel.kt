@@ -143,13 +143,14 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
         return itemDao.getSessions(id).asLiveData()
     }
 
-    fun addSession(session: Session) {
-        insertSessionItem(session)
+    fun retrieveSession(id: Long) : Session {
+        return itemDao.getSession(id)
     }
 
-    private fun insertSessionItem(session: Session) {
+    fun insertSessionItem(session: Session, callback: (Long) -> Unit) {
         viewModelScope.launch {
-            itemDao.insert(session)
+            val id = itemDao.insert(session)
+            callback(id)
         }
     }
 

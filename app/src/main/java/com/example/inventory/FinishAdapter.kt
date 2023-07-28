@@ -11,12 +11,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.inventory.data.ListItemItem
 import java.util.ArrayList
 
 class FinishAdapter(
     private val context: Context,
-    private val correct: java.util.ArrayList<String>?,
-    private val wrong: ArrayList<String>?
+    private val correct: MutableList<ListItemItem>?,
+    private val wrong: MutableList<ListItemItem>?
 ) : RecyclerView.Adapter<FinishAdapter.ItemViewHolder>() {
 
     // Provide a reference to the views for each data item
@@ -43,15 +44,13 @@ class FinishAdapter(
      * Replace the contents of a view (invoked by the layout manager)
      */
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        Log.d("onbindview out if", position.toString())
         if (wrong != null && correct != null) {
-            Log.d("onbindview in if", position.toString())
             if (position < wrong.size) {
-                holder.textView.text = wrong[position]
+                holder.textView.text = wrong[position].text
                 holder.imageView.setImageResource(R.drawable.wrong)
                 holder.textView.setTextColor(Color.parseColor("#ff0000"));
             } else {
-                holder.textView.text = correct[position - wrong.size]
+                holder.textView.text = correct[position - wrong.size].text
                 //holder.imageView.setImageResource(R.drawable.check)
             }
         }
@@ -63,7 +62,6 @@ class FinishAdapter(
      */
     override fun getItemCount(): Int {
         if (wrong != null && correct != null) {
-            Log.d("", "size: "+correct.size + wrong.size)
             return correct.size + wrong.size
         }
         else {

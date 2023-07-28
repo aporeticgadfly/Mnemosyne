@@ -23,7 +23,10 @@ import java.util.ArrayList
 class MnemosyneAdapter(
     private val children: MutableList<MainActivity.TreeNode<String>>,
     private val context: Context,
-    private val viewModel: MnemosyneViewModel
+    private val viewModel: MnemosyneViewModel,
+    var hovFlag : Boolean,
+    var listCbs: MutableList<Int>,
+    var listArr: MutableList<ListItem>
 
 ) : RecyclerView.Adapter<MnemosyneAdapter.ItemViewHolder>() {
 
@@ -32,21 +35,19 @@ class MnemosyneAdapter(
     // you provide access to all the views for a data item in a view holder.
     // Each data item is just an Affirmation object.
     class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.expand_title)
-        val recycler: RecyclerView = view.findViewById(R.id.expandRecycler)
+        val textView: TextView? = view.findViewById(R.id.expand_title)
 
-        // TODO: will this give errors? 
-        val title_text : TextView = view.findViewById(R.id.title_text)
-        var list_id: TextView = view.findViewById(R.id.list_id)
-        var rb: RadioButton = view.findViewById(R.id.radiob)
-        var cb: CheckBox = view.findViewById(R.id.checkb)
-        var editBtn : Button = view.findViewById(R.id.edit_list)
-        var delBtn : Button = view.findViewById(R.id.dele_list)
+        val title_text : TextView? = view.findViewById(R.id.title_text)
+        var list_id: TextView? = view.findViewById(R.id.list_id)
+        var rb: RadioButton? = view.findViewById(R.id.radiob)
+        var cb: CheckBox? = view.findViewById(R.id.checkb)
+        var editBtn : Button? = view.findViewById(R.id.edit_list)
+        var delBtn : Button? = view.findViewById(R.id.dele_list)
 
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (children[position].children == null) {
+        if (children[position].children.size == 0) {
             return 0
         }
         else {
@@ -77,20 +78,15 @@ class MnemosyneAdapter(
      * Replace the contents of a view (invoked by the layout manager)
      */
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        var hovFlag : Boolean = false
-        var listCbs: MutableList<Int> = arrayListOf()
-        var listArr: MutableList<ListItem> = arrayListOf()
 
         //write children? values
-        // TODO: if statement and always true thing
-        if (children[position].children != null ) {
-            holder.textView.text = children[position].value
+        if (children[position].children.size != 0 ) {
+            holder.textView?.text = children[position].value
         }
         else {
             var currentList : ListItem = ListItem(0, "", mutableListOf())
 
-            holder.title_text.text = children[position].value
-            // TODO:  listarr doesnt make sense, hob and listcbs either
+            holder.title_text?.text = children[position].value
             for(list in listArr) {
                 if (list.list_title == children[position].value) {
                     currentList = list
@@ -99,12 +95,12 @@ class MnemosyneAdapter(
             }
 
             //sets up an invisible id for duplicates and collisions and such
-            holder.list_id.text = currentList.id.toString()
-            holder.list_id.visibility = View.GONE
+            holder.list_id?.text = currentList.id.toString()
+            holder.list_id?.visibility = View.GONE
 
             //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
-            holder.rb.visibility = View.GONE
-            holder.rb.setOnClickListener {
+            holder.rb?.visibility = View.GONE
+            holder.rb?.setOnClickListener {
                 if (hovFlag == false) {
                     val viewIntent = Intent(context, ViewActivity::class.java)
                     viewIntent.putExtra("id", currentList.id.toInt())
@@ -119,8 +115,8 @@ class MnemosyneAdapter(
             }
 
             //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
-            holder.cb.visibility = View.GONE
-            holder.cb.setOnCheckedChangeListener { buttonView, isChecked ->
+            holder.cb?.visibility = View.GONE
+            holder.cb?.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (isChecked) {
                     listCbs.add(currentList.id)
                 } else {
@@ -138,14 +134,14 @@ class MnemosyneAdapter(
             }
 
             //go to page for editing list
-            holder.editBtn.setOnClickListener {
+            holder.editBtn?.setOnClickListener {
                 val editIntent = Intent(context, EditActivity::class.java)
                 editIntent.putExtra("id", currentList.id);
                 context.startActivity(editIntent)
             }
 
             //delete list from db and then recreate page
-            holder.delBtn.setOnClickListener {
+            holder.delBtn?.setOnClickListener {
                 viewModel.deleteItem(currentList.id)
                 Toast.makeText(context, "List Deleted", Toast.LENGTH_SHORT).show()
                 //context.recreate()

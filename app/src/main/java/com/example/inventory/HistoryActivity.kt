@@ -1,25 +1,36 @@
 package com.example.inventory
 
+import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.RadioButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.ListItemItem
 import com.example.inventory.data.Session
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.navigation.NavigationView
 
 class HistoryActivity : AppCompatActivity() {
-    val titleText : TextView = findViewById(R.id.title)
-    val avgScore : TextView = findViewById(R.id.avg_score)
-    val avgTime : TextView = findViewById(R.id.avg_time)
-    val progressBar: ProgressBar = findViewById(R.id.indeterminateBarMain)
-    val history: RecyclerView = findViewById(R.id.lin_layout)
+    private lateinit var topAppBar: MaterialToolbar
+    private lateinit var mDrawerLayout: DrawerLayout
     private var score_total: Int = 0
     private var time_total: Int = 0
-    private var items : java.util.ArrayList<String> = arrayListOf()
+    private var items : java.util.ArrayList<itemInfo> = arrayListOf()
+    private var distinctItems : List<itemInfo> = arrayListOf()
     private var percentages : java.util.ArrayList<Int> = arrayListOf()
     private val viewModel: MnemosyneViewModel by viewModels {
         MnemosyneViewModelFactory(
@@ -28,9 +39,22 @@ class HistoryActivity : AppCompatActivity() {
         )
     }
 
+    data class itemInfo (
+        val id : Int,
+        val text: String
+            )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
+        val titleText : TextView = findViewById(R.id.hist_title)
+        val avgScore : TextView = findViewById(R.id.avg_score)
+        val avgTime : TextView = findViewById(R.id.avg_time)
+        val progressBar: ProgressBar = findViewById(R.id.indeterminateBarMain)
+        val history: RecyclerView = findViewById(R.id.lin_layout)
+
+        val historyAdapter = HistoryAdapter(this, items, percentages)
+        history.adapter = historyAdapter
 
         val sessionsObserver = Observer<MutableList<Session>> { sessions ->
             if(sessions.size == 0) {
@@ -67,7 +91,8 @@ class HistoryActivity : AppCompatActivity() {
                         for(wrong in session.wrong) {
                             if (item.id == wrong.id) {
                                 genCounter++
-                                items.add(item.text)
+                                val itemInfoInstance = itemInfo(item.id, item.text)
+                                items.add(itemInfoInstance)
                                 break
                             }
                         }
@@ -75,7 +100,8 @@ class HistoryActivity : AppCompatActivity() {
                             if (item.id == corr.id) {
                                 genCounter++
                                 tallyCounter++
-                                items.add(item.text)
+                                val itemInfoInstance = itemInfo(item.id, item.text)
+                                items.add(itemInfoInstance)
                                 break
                             }
                         }
@@ -83,13 +109,70 @@ class HistoryActivity : AppCompatActivity() {
                     percentage = (tallyCounter/genCounter)*100
                     percentages.add(percentage)
                 }
+                distinctItems = items.distinct()
+                historyAdapter.updateData(distinctItems.toMutableList(), percentages.toMutableList())
 
-                history.adapter = HistoryAdapter(this, items, percentages)
             }
         }
 
         //get sessions w list id
         val id = intent.getIntExtra("id", 0)
         viewModel.getSessionsView(id).observe(this, sessionsObserver)
+
+        mDrawerLayout = findViewById(R.id.my_drawer_layout)
+
+        topAppBar = findViewById(R.id.topAppBar)
+        setSupportActionBar(topAppBar)
+        val actionbar: ActionBar? = supportActionBar
+        actionbar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.menu)
+        }
+
+        val navigationView: NavigationView = findViewById(R.id.navigation)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            // set item as selected to persist highlight
+            menuItem.isChecked = true
+            // close drawer when item is tapped
+            mDrawerLayout.closeDrawers()
+
+            // Handle navigation view item clicks here
+            when (menuItem.itemId) {
+                // make rb visible so that view can know which list to display
+                R.id.main_activity -> {
+                    val mainIntent = Intent(this, MainActivity::class.java)
+                    this.startActivity(mainIntent)
+                }
+                R.id.view_activity -> {
+                    Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
+                }
+
+                R.id.history_activity -> {
+                    Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
+                }
+
+                //go to settings
+                R.id.settings_activity -> {
+                    val settingsIntent = Intent(this, SettingsActivity::class.java)
+                    this.startActivity(settingsIntent)
+                }
+            }
+            true
+
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        return when (item.itemId) {
+            android.R.id.home -> {
+                mDrawerLayout.openDrawer(GravityCompat.START)
+                true
+            }
+
+            else -> {
+                true
+            }
+        }
     }
 }

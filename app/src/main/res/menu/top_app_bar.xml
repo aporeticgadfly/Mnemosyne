@@ -3,12 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/search"
-        android:icon="@drawable/search"
-        android:title="search"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/confirm"
         android:icon="@drawable/white_check"
         android:title="confirm"

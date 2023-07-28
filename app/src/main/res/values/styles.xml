@@ -15,7 +15,9 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-
+    <style name="BlackButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
     <style name="Widget.Inventory.ListItemTextView" parent="Widget.MaterialComponents.TextView">
         <item name="android:gravity">center_vertical</item>
         <item name="android:layout_height">48dp</item>
@@ -55,6 +57,7 @@
 
     <style name="WhiteBackground" parent="TextAppearance.AppCompat">
         <item name="android:backgroundTint" tools:targetApi="lollipop">#FFFFFF</item>
+        <item name="android:textColor" tools:targetApi="lollipop">@color/black</item>
     </style>
 
     <style name="WhiteEdit" parent="TextAppearance.AppCompat">

@@ -15,7 +15,6 @@
         android:id="@+id/history_activity"
         android:icon="@drawable/history"
         android:title="History" />
-
     <item
         android:id="@+id/settings_activity"
         android:icon="@drawable/settings2"

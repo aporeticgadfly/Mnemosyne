@@ -14,8 +14,8 @@ import java.util.ArrayList
 
 class HistoryAdapter(
     private val context: Context,
-    private val items: java.util.ArrayList<String>?,
-    private val percentages: ArrayList<Int>?
+    private val items: MutableList<HistoryActivity.itemInfo>,
+    private val percentages: MutableList<Int>?
 ) : RecyclerView.Adapter<HistoryAdapter.ItemViewHolder>() {
 
     // Provide a reference to the views for each data item
@@ -43,8 +43,8 @@ class HistoryAdapter(
      * Replace the contents of a view (invoked by the layout manager)
      */
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        if (items != null && percentages != null) {
-            holder.firstText.text = items[position]
+        if (items != null && percentages != null && items.size != 0 && percentages.size != 0) {
+            holder.firstText.text = items[position].text
             holder.progress.progress = percentages[position]
             holder.percentage.text = percentages[position].toString() + "%"
         }
@@ -58,5 +58,15 @@ class HistoryAdapter(
             return items.size
         }
         return 0
+    }
+
+    fun updateData(newItems: MutableList<HistoryActivity.itemInfo>, newPercentages: MutableList<Int>) {
+        items?.clear()
+        items?.addAll(newItems)
+
+        percentages?.clear()
+        percentages?.addAll(newPercentages)
+
+        notifyDataSetChanged()
     }
 }

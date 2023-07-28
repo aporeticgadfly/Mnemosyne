@@ -69,6 +69,10 @@ class ViewActivity : AppCompatActivity() {
                     Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
                 }
 
+                R.id.history_activity -> {
+                    Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
+                }
+
                 R.id.settings_activity -> {
                     val settingsIntent = Intent(this, SettingsActivity::class.java)
                     this.startActivity(settingsIntent)

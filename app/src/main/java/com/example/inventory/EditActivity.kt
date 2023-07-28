@@ -1,6 +1,7 @@
 package com.example.inventory
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -52,7 +54,7 @@ class EditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_create)
+        setContentView(R.layout.activity_edit)
 
         addItem = findViewById(R.id.add_item)
         listTitle = findViewById(R.id.editTitle)
@@ -61,7 +63,7 @@ class EditActivity : AppCompatActivity() {
         val editObserver = Observer<ListItem> { list ->
             Log.d("edit", list.toString())
             listTitle.setText(list.list_title)
-            for(x in 0 until list.list_items.size-1) {
+            for(x in 0 until list.list_items.size) {
                 val view: View = LayoutInflater.from(this).inflate(R.layout.createiteminput, null)
                 lateinit var delBtn: Button
                 delBtn = view.findViewById(R.id.dele_item)
@@ -111,7 +113,8 @@ class EditActivity : AppCompatActivity() {
                     itemLin = linear_layout2.getChildAt(x) as LinearLayout
                     itemList = itemLin.findViewById(R.id.list_itemlist)
                     list_text = itemList.text.toString()
-                    listArr[x].text = list_text
+                    val item: ListItemItem = ListItemItem(0, list_text)
+                    listArr.add(item)
                 }
                 val passedId = intent.getIntExtra("id", 0)
                 if (passedId != null) {
@@ -128,54 +131,15 @@ class EditActivity : AppCompatActivity() {
             viewModel.retrieveItem(passedId.toInt()).observe(this, editObserver)
         }
 
-
+        mDrawerLayout = findViewById(R.id.my_drawer_layout)
 
         topAppBar = findViewById(R.id.topAppBar)
-        //dont know if needed
-        /*
-        topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                // TODO: MAKE THIS STUFF WORK BALAHHHHH
-                R.id.search -> {
-                    // edittext has to show up somewhere; save current state? then search through titles for matches
-                    //how to return to default state without edittext
-                    true
-                }
-                R.id.more -> {
-                    // Handle more item (inside overflow menu) press
-                    var moreItem: MenuItem = findViewById(R.id.more)
-                    moreItem.setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.itemId) {
-                            R.id.import_item -> {
-                                //implicit intent w file manager to choose file; have to do error checking to see if really xl file; detect separator?
-                                //after implicit, choose title to give to it in popup or error popup saying invalid filetype
-                                true
-                            }
-                            R.id.export_item -> {
-                                //popup for confirmation
-                                //add checkboxes to all lists
-                                //implicit intent w file manager to choose save location
-                                true
-                            }
-                            else -> false
-                        }
-
-                    }
-                    true
-                }
-                else -> false
-            }
-        }
-        //
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.topAppBar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(topAppBar)
         val actionbar: ActionBar? = supportActionBar
         actionbar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setHomeAsUpIndicator(R.drawable.menu)
         }
-
-        mDrawerLayout = findViewById<DrawerLayout>(R.id.my_drawer_layout)
 
         val navigationView: NavigationView = findViewById(R.id.navigation)
         navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -185,35 +149,44 @@ class EditActivity : AppCompatActivity() {
             mDrawerLayout.closeDrawers()
 
             // Handle navigation view item clicks here.
-            // TODO: CHANGE FRAGMENTS BLAHHHHHH ALSO ADD THIS STUFF TO ALL OF THE VIEWS BLAHHHHH
             when (menuItem.itemId) {
+                R.id.main_activity -> {
+                    val mainIntent = Intent(this, MainActivity::class.java)
+                    this.startActivity(mainIntent)
+                }
 
-                R.id.nav_home -> {
-                    //just change fragment
+                R.id.view_activity -> {
+                    Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
                 }
-                R.id.nav_view -> {
-                    //short item press to select item, default to first one; pass id
+
+                R.id.history_activity -> {
+                    Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
                 }
-                R.id.nav_settings -> {
-                    //just change fragment
+
+                R.id.settings_activity -> {
+                    val settingsIntent = Intent(this, SettingsActivity::class.java)
+                    this.startActivity(settingsIntent)
                 }
             }
             // Add code here to update the UI based on the item selected
             // For example, swap UI fragments here
 
             true
+
         }
     }
-
-    //appbar - toolbar button click
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         return when (item.itemId) {
             android.R.id.home -> {
                 mDrawerLayout.openDrawer(GravityCompat.START)
                 true
             }
 
-            else -> super.onOptionsItemSelected(item)
-        }*/
+            else -> {
+                true
+            }
+        }
     }
 }

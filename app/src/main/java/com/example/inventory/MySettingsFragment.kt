@@ -7,7 +7,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
@@ -29,10 +34,9 @@ class MySettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.preferences, rootKey)
         val reportPreference: Preference? = findPreference("reportBug")
         val supportPreference: Preference? = findPreference("support")
-        val folderPreference: Preference? = findPreference("exportFolder")
         val aboutPreference: Preference? = findPreference("aboutFolder")
         val clearhPreference: Preference? = findPreference("clearHistory")
-        val nightPreference: SwitchPreferenceCompat? = findPreference("nightMode")
+        //val nightPreference: SwitchPreferenceCompat? = findPreference("nightMode")
         val instantPreference: SwitchPreferenceCompat? = findPreference("noInstant")
         val setHistoryPreference: SeekBarPreference? = findPreference("setHistory")
 
@@ -43,51 +47,35 @@ class MySettingsFragment : PreferenceFragmentCompat() {
         }
         if (supportPreference != null) {
             val openURL = Intent(android.content.Intent.ACTION_VIEW)
-            openURL.data = Uri.parse("https://github.com/aptaabye/Mnemosyne")
+            openURL.data = Uri.parse("https://www.paypal.com/donate/?hosted_button_id=2GW96T795BMNJ")
             supportPreference.intent = openURL
         }
         if (clearhPreference != null) {
             clearhPreference.setOnPreferenceClickListener {
-                viewModel.deleteSessions()
+                val deleteThread = Thread {
+                    viewModel.deleteSessions()
+                }
+                deleteThread.start()
                 true
             }
         }
         if(aboutPreference != null) {
             aboutPreference.summary = "Version Number: 0.0.1"
         }
-        if(folderPreference != null) {
-            folderPreference.setOnPreferenceClickListener {
-                val getFile =
-                    registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
-                        if (uri != null) {
-                            folderPreference.summary = uri.toString()
-                            folderPreference.setDefaultValue(uri)
-                            //save value
-                        }
-                    }
-                val resolver = this.activity?.contentResolver
-                val values = ContentValues()
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                val uri = resolver?.insert(MediaStore.Files.getContentUri("external"), values)
-                folderPreference.setDefaultValue(uri)
-                getFile.launch(uri)
-                true
-            }
-
-        }
         if(instantPreference != null) {
             instantPreference.setDefaultValue(false)
         }
-        if(nightPreference != null) {
+        /*if(nightPreference != null) {
             nightPreference.setDefaultValue(false)
             AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
             UiModeManager.MODE_NIGHT_YES
 
             nightPreference.setOnPreferenceChangeListener(Preference.OnPreferenceChangeListener { preference, newValue ->
-
+                Log.d("nightMode", newValue.toString())
                 if(newValue == true) {
                     AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
                     UiModeManager.MODE_NIGHT_NO
+                    activity?.recreate()
                 }
                 else {
                     AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
@@ -95,7 +83,7 @@ class MySettingsFragment : PreferenceFragmentCompat() {
                 }
                 true
             })
-        }
+        }*/
         if(setHistoryPreference != null) {
             setHistoryPreference.setDefaultValue(50)
             setHistoryPreference.min = 10
@@ -106,12 +94,15 @@ class MySettingsFragment : PreferenceFragmentCompat() {
             //when new value set, delete all items over cutoff
             //get lowest id; delete all from lowestid to sessionNum-value
             setHistoryPreference.setOnPreferenceChangeListener(Preference.OnPreferenceChangeListener { preference, newValue ->
-                val sessionNum = viewModel.sessionNum()
-                if (sessionNum > newValue as Int) {
-                    val lowestId = viewModel.lowestId()
-                    val num = (sessionNum - newValue) + lowestId
-                    viewModel.deleteCutoff(num)
+                val setHistoryThread = Thread {
+                    val sessionNum = viewModel.sessionNum()
+                    if (sessionNum > newValue as Int) {
+                        val lowestId = viewModel.lowestId()
+                        val num = (sessionNum - newValue) + lowestId
+                        viewModel.deleteCutoff(num)
+                    }
                 }
+                setHistoryThread.start()
                 true
             })
         }
