@@ -1,0 +1,47 @@
+Mnemosyne, named for the Greek goddess of memory, is an app designed to aid one in remembering lists of related information. This particular memorization scenario is underserved by more traditional flashcard/memorization apps such as Anki. For example, if one is learning German, one would eventually have to memorize a list of around 50 verbs that are the so called "dative verbs". One could try to make a really big singular flashcard, or attempt something like cloze deletion, but these are very clunky methods. With Mnemosyne, one can simply enter the list items one at a time and get feedback on which ones were missed. One could then focus on just those items that are commonly missed or continue trying to get a perfect score on the original list. 
+
+For convenience one can import a csv file into the app to create lists, or just create them manually. The csv must have a header row with the columns "Title" and "Items". Within a csv file, can specify multiple lists, one in each row. One can also export lists to save elsewhere.
+
+There is a feature that allows for placing related lists together in a collapsible group. One can nest these groups to near arbitrary depth. One creates a group by prefixing the group title to the list title, followed by "::". For example, to create a grouping of German lists, where one wants a list of nouns and a list of verbs, one would name the two lists German::Nouns and German::Verbs.
+
+
+Privacy Policy for Mnemosyne App
+
+Last updated: 11/08/2023
+
+Thank you for choosing Mnemosyne! This privacy policy outlines how we handle user data and privacy in our app.
+
+1. Data Collection and Usage:
+Mnemosyne does not collect, store, or manage any personal or user data. We do not access, transmit, or share any user information.
+
+2. Permissions:
+Mnemosyne requires storage permissions to enable basic app functionality, such as saving and retrieving data. These permissions are solely used for the purpose of app operation and do not involve data collection.
+
+3. Third-Party Services:
+Mnemosyne does not utilize any third-party services, such as analytics tools or advertising networks. Your data remains within the app and is not shared with external entities.
+
+4. User Consent:
+By using Mnemosyne, you agree to the terms outlined in this privacy policy. We respect your privacy and ensure that your data remains secure within the app.
+
+5. Security Measures:
+While we do not collect data, we have implemented security measures to protect your app experience and ensure the safety of your device.
+
+6. Contact Us:
+If you have any questions or concerns about your privacy or data usage in Mnemosyne, please contact us at equivocatemolecule@protonmail.com.
+
+7. Changes to Privacy Policy:
+We may update this privacy policy from time to time. Any changes will be reflected on this page and communicated to users through the app.
+
+8. App Access to Device Features:
+Mnemosyne requires storage permissions solely for the purpose of app functionality and does not access or interact with other device features or data.
+
+9. Children's Privacy:
+Mnemosyne is not designed for use by children under the age of 13. We do not knowingly collect any personal information from children.
+
+10. App Developer:
+Mnemosyne is developed by Santiago Orellana. If you have any questions, please contact us at equivocatemolecule@protonmail.com.
+
+Thank you for using Mnemosyne. We value your privacy and strive to provide a safe and secure app experience.
+
+
+
