@@ -50,7 +50,7 @@ class ViewAdapter(
      */
     override fun getItemCount(): Int {
         if (items != null) {
-            return items.size - 1
+            return items.size
         }
         else {
             return 0

@@ -28,9 +28,14 @@
         />
 
     <Preference
+        android:title="Privacy Policy"
+        android:key="privacy"
+        />
+
+    <Preference
         android:title="About"
         android:key="about"
-        android:summary="App version 0.0.1"
+        android:summary="App version 0.1"
         />
 
 </PreferenceScreen>

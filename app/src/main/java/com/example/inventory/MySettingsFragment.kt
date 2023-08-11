@@ -39,11 +39,17 @@ class MySettingsFragment : PreferenceFragmentCompat() {
         //val nightPreference: SwitchPreferenceCompat? = findPreference("nightMode")
         val instantPreference: SwitchPreferenceCompat? = findPreference("noInstant")
         val setHistoryPreference: SeekBarPreference? = findPreference("setHistory")
+        val privacyPreference: Preference? = findPreference("privacy")
 
         if (reportPreference != null) {
             val openURL = Intent(android.content.Intent.ACTION_VIEW)
             openURL.data = Uri.parse("https://github.com/aptaabye/Mnemosyne/issues")
             reportPreference.intent = openURL
+        }
+        if (privacyPreference != null) {
+            val privacyURL = Intent(android.content.Intent.ACTION_VIEW)
+            privacyURL.data = Uri.parse("https://aporeticgadfly.github.io")
+            privacyPreference.intent = privacyURL
         }
         if (supportPreference != null) {
             val openURL = Intent(android.content.Intent.ACTION_VIEW)

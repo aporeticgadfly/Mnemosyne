@@ -14,11 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.ListItemItem
 import java.util.ArrayList
 
-class FinishAdapter(
+class FinishWrongAdapter(
     private val context: Context,
-    private val correct: MutableList<ListItemItem>?,
-    private val wrong: MutableList<ListItemItem>?
-) : RecyclerView.Adapter<FinishAdapter.ItemViewHolder>() {
+    private val correct: ArrayList<String>?,
+    private val wrong: ArrayList<String>?
+) : RecyclerView.Adapter<FinishWrongAdapter.ItemViewHolder>() {
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -46,14 +46,15 @@ class FinishAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         if (wrong != null && correct != null) {
             if (position < wrong.size) {
-                holder.textView.text = wrong[position].text
+                holder.textView.text = wrong[position]
                 holder.imageView.setImageResource(R.drawable.wrong)
                 holder.textView.setTextColor(Color.parseColor("#ff0000"));
             } else {
-                holder.textView.text = correct[position - wrong.size].text
+                holder.textView.text = correct[position - wrong.size]
                 //holder.imageView.setImageResource(R.drawable.check)
             }
         }
+
     }
 
     /**

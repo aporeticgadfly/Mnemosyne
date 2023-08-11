@@ -195,6 +195,10 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
             itemDao.deleteLast()
         }
     }
+
+    fun getLastSession(list_id: Int): LiveData<Session> {
+        return itemDao.getLast(list_id).asLiveData()
+    }
 }
 
 /**

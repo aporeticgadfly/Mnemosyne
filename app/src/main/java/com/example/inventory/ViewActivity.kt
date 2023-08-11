@@ -3,6 +3,7 @@ package com.example.inventory
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
@@ -37,6 +38,7 @@ class ViewActivity : AppCompatActivity() {
 
         val listObserver = Observer<ListItem> { list ->
             title.text = list.list_title
+            Log.d("", list.list_items.toString())
             items.adapter = ViewAdapter(this, list.list_items)
         }
 

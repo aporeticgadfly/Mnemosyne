@@ -118,8 +118,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/elapsed_time_l"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/retry_btn"
+        app:layout_constraintBottom_toTopOf="@+id/previous_l"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -150,35 +149,114 @@
             style="@style/WhiteEdit"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/retry_btn"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Retry"
-        app:layout_constraintBottom_toBottomOf="@+id/home_btn"
-        app:layout_constraintEnd_toStartOf="@+id/home_btn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/home_btn"
-        app:layout_constraintVertical_bias="0.0"
-        android:textColor="@color/black"
-        style="@style/WhiteBackground"/>
-
-    <Button
-        android:id="@+id/home_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="172dp"
-        android:text="Home"
-        app:layout_constraintBottom_toTopOf="@id/items"
+        android:id="@+id/previous_l"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/retry_btn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.512"
-        app:layout_constraintStart_toEndOf="@+id/retry_btn"
-        app:layout_constraintVertical_bias="0.095"
-        android:layout_marginBottom="30dp"
-        android:textColor="@color/black"
-        android:layout_marginStart="70dp"
-        style="@style/WhiteBackground"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/elapsed_time_l"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/previous_label"
+            android:text="Previous Score: "
+            style="@style/WhiteEdit"
+            android:layout_marginRight="30dp"/>
+        <TextView
+            android:id="@+id/previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="0"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/previous_missed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/list_title"
+            app:layout_constraintVertical_bias="0.736"
+            style="@style/WhiteEdit"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/previous_time_label"
+            android:text="Previous Time: "
+            style="@style/WhiteEdit"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"/>
+        <TextView
+            android:id="@+id/previous_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="0"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/previous_missed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/list_title"
+            app:layout_constraintVertical_bias="0.736"
+            style="@style/WhiteEdit"/>
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_layout"
+        app:layout_constraintBottom_toTopOf="@id/items"
+        app:layout_constraintTop_toBottomOf="@id/previous_l"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+
+        <Button
+            android:id="@+id/retry_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Retry"
+            app:layout_constraintBottom_toBottomOf="@+id/home_btn"
+            app:layout_constraintEnd_toStartOf="@+id/wrong_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/home_btn"
+            app:layout_constraintVertical_bias="0.0"
+            android:textColor="@color/black"
+            style="@style/WhiteBackground"
+            android:ellipsize="end"/>
+
+        <Button
+            android:id="@+id/wrong_btn"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="Play Wrongs"
+            app:layout_constraintBottom_toBottomOf="@+id/home_btn"
+            app:layout_constraintEnd_toStartOf="@+id/home_btn"
+            app:layout_constraintStart_toStartOf="@+id/retry_btn"
+            app:layout_constraintTop_toTopOf="@+id/home_btn"
+            android:textColor="@color/black"
+            style="@style/WhiteBackground"
+            android:ellipsize="end"/>
+
+        <Button
+            android:id="@+id/home_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Home"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/wrong_btn"
+            android:textColor="@color/black"
+            android:layout_marginStart="10dp"
+            style="@style/WhiteBackground"
+            android:ellipsize="end"/>
+    </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0dp"

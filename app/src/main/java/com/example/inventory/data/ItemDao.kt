@@ -76,6 +76,9 @@ interface ItemDao {
     @Query("DELETE FROM Session WHERE id = (SELECT id FROM Session ORDER BY id LIMIT 1)")
     suspend fun deleteLast()
 
+    @Query("SELECT * FROM Session WHERE list_id = :list_id ORDER BY id DESC LIMIT 1")
+    fun getLast(list_id: Int) : Flow<Session>
+
     @Query("DELETE from Session WHERE id < :cutoff")
     suspend fun deleteCutoff(cutoff: Int)
 

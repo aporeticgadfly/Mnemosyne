@@ -27,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
@@ -68,7 +69,39 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         )
     }
 
-    class TreeNode<T>(value: T) {
+    private fun showConfirmationDialog(id: Int, title: String) {
+        val builder = AlertDialog.Builder(this)
+        val inflater = LayoutInflater.from(this)
+        val dialogView = inflater.inflate(R.layout.dialog_confirmation, null)
+
+        builder.setView(dialogView)
+            .setTitle("Play options")
+            .setMessage("Play whole list or only wrong items from last session?")
+            .setPositiveButton("Whole List") { dialog, _ ->
+                val playIntent = Intent(this, PlayActivity::class.java)
+                playIntent.putExtra("id", id)
+                playIntent.putExtra("title", title)
+                playIntent.putExtra("flag", false)
+                this.startActivity(playIntent)
+                dialog.dismiss()
+            }
+            .setPositiveButton("Only Wrong Items") { dialog, _ ->
+                val playIntent = Intent(this, PlayActivity::class.java)
+                playIntent.putExtra("id", id)
+                playIntent.putExtra("title", title)
+                playIntent.putExtra("flag", true)
+                this.startActivity(playIntent)
+                dialog.dismiss()
+            }
+            .setNeutralButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+class TreeNode<T>(value: T) {
         var value: T = value
         var parent: TreeNode<T>? = null
 
@@ -149,7 +182,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 val csvParser = CSVParser(
                     reader, CSVFormat.DEFAULT
                         .withHeader("Title", "Items")
-                        .withSkipHeaderRecord()
+                        .withSkipHeaderRecord(true)
                         .withIgnoreHeaderCase()
                         .withTrim()
                 )
@@ -443,10 +476,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                         //if view is clicked anywhere else, go to play to play that quiz
                         leafLayout.setOnClickListener {
-                            val playIntent = Intent(this, PlayActivity::class.java)
-                            playIntent.putExtra("id", currentList.id.toInt())
-                            playIntent.putExtra("title", currentList.list_title)
-                            this.startActivity(playIntent)
+                            showConfirmationDialog(currentList.id, currentList.list_title)
                         }
 
                         //go to page for editing list

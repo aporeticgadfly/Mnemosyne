@@ -98,6 +98,31 @@
         app:layout_constraintVertical_bias="1.0"
         style="@style/WhiteEdit"/>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/previous"
+        android:text="previous"
+        app:layout_constraintTop_toBottomOf="@+id/elapsed_time"
+        app:layout_constraintEnd_toEndOf="@id/elapsed_time"
+        app:layout_constraintStart_toStartOf="@id/elapsed_time"
+        app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName3"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous Score: "
+            style="@style/WhiteEdit"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/previous_count"
+            style="@style/WhiteEdit"
+            android:text="00"
+            />
+    </LinearLayout>
+
     <EditText
         android:id="@+id/editTextTextPersonName3"
         android:layout_width="215dp"

@@ -6,7 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -14,8 +16,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.ListItemItem
+import com.example.inventory.data.Session
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import org.w3c.dom.Text
@@ -28,6 +32,10 @@ class FinishActivity : AppCompatActivity() {
     private lateinit var retryBtn: Button
     private lateinit var homeBtn: Button
     private lateinit var items: RecyclerView
+    private lateinit var previousScore: TextView
+    private lateinit var previousTime: TextView
+    private lateinit var previousLin: LinearLayout
+    private lateinit var wrongBtn : Button
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var mDrawerLayout: DrawerLayout
     private var correct : MutableList<ListItemItem> = arrayListOf()
@@ -42,7 +50,6 @@ class FinishActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_finish)
-        //get session id from play
 
         listTitle = findViewById(R.id.list_title)
         numRight = findViewById(R.id.num_right)
@@ -51,41 +58,109 @@ class FinishActivity : AppCompatActivity() {
         retryBtn = findViewById(R.id.retry_btn)
         homeBtn = findViewById(R.id.home_btn)
         items = findViewById(R.id.items)
+        previousScore = findViewById(R.id.previous)
+        previousTime = findViewById(R.id.previous_time)
+        previousLin = findViewById(R.id.previous_l)
+        wrongBtn = findViewById(R.id.wrong_btn)
 
-        val sessionID = intent.getLongExtra("sessionID", 0)
-        if (sessionID != null) {
-            val finishThread = Thread {
-                val sessionObj = viewModel.retrieveSession(sessionID.toLong())
-                correct = sessionObj.correct
-                wrong = sessionObj.wrong
-                val time_taken = intent.getStringExtra("time")
-                val list_title = intent.getStringExtra("title")
-                val id = intent.getIntExtra("id", 0)
+        //if subset, dont get sessionid; display sessionObj; dont display previous
+        //get wrong and correct directly
+        val flag = intent.getBooleanExtra("flag", false)
+        if (flag == true) {
+            val flagCorrect = intent.getStringArrayListExtra("correct")
+            val flagWrong = intent.getStringArrayListExtra("wrong")
 
-                elapsedTime.text = time_taken
-                if (correct != null) {
-                    numRight.text = correct.size.toString()
-                }
-                if (wrong != null) {
-                    numWrong.text = wrong.size.toString()
-                }
-                listTitle.text = list_title
+            val time_taken = intent.getStringExtra("time")
+            val list_title = intent.getStringExtra("title")
+            val id = intent.getIntExtra("id", 0)
 
-                retryBtn.setOnClickListener {
-                    val retryIntent = Intent(this, PlayActivity::class.java)
-                    retryIntent.putExtra("id", id.toInt())
-                    retryIntent.putExtra("title", list_title)
-                    this.startActivity(retryIntent)
-                }
-
-                homeBtn.setOnClickListener {
-                    val homeIntent = Intent(this, MainActivity::class.java)
-                    this.startActivity(homeIntent)
-                }
-
-                items.adapter = FinishAdapter(this, correct, wrong)
+            elapsedTime.text = time_taken
+            if (flagCorrect != null) {
+                numRight.text = flagCorrect.size.toString()
             }
-            finishThread.start()
+            if (flagWrong != null) {
+                numWrong.text = flagWrong.size.toString()
+            }
+            listTitle.text = list_title
+            previousLin.visibility = View.GONE
+
+            retryBtn.setOnClickListener {
+                val retryIntent = Intent(this, PlayActivity::class.java)
+                retryIntent.putExtra("id", id.toInt())
+                retryIntent.putExtra("title", list_title)
+                retryIntent.putExtra("flag", flag)
+                this.startActivity(retryIntent)
+            }
+
+            wrongBtn.setOnClickListener {
+                val wrongIntent = Intent(this, PlayActivity::class.java)
+                wrongIntent.putExtra("id", id.toInt())
+                wrongIntent.putExtra("title", list_title)
+                wrongIntent.putExtra("flag", true)
+                this.startActivity(wrongIntent)
+            }
+
+            homeBtn.setOnClickListener {
+                val homeIntent = Intent(this, MainActivity::class.java)
+                this.startActivity(homeIntent)
+            }
+
+            items.adapter = FinishWrongAdapter(this, flagCorrect, flagWrong)
+        }
+        else {
+            val sessionID = intent.getLongExtra("sessionID", 0)
+            if (sessionID != null) {
+                val finishThread = Thread {
+                    val sessionObj = viewModel.retrieveSession(sessionID.toLong())
+                    correct = sessionObj.correct
+                    wrong = sessionObj.wrong
+                    val time_taken = intent.getStringExtra("time")
+                    val list_title = intent.getStringExtra("title")
+                    val id = intent.getIntExtra("id", 0)
+
+                    val lastObserver = Observer<Session> { session ->
+                        val total = session.correct.size + session.wrong.size
+                        val string = session.correct.size.toString() + "/" + total
+                        previousScore.text = string
+                        previousTime.text = session.time_taken.toString()
+                    }
+
+                    viewModel.getLastSession(id.toInt()).observe(this, lastObserver)
+
+                    elapsedTime.text = time_taken
+                    if (correct != null) {
+                        numRight.text = correct.size.toString()
+                    }
+                    if (wrong != null) {
+                        numWrong.text = wrong.size.toString()
+                    }
+                    listTitle.text = list_title
+
+                    retryBtn.setOnClickListener {
+                        val retryIntent = Intent(this, PlayActivity::class.java)
+                        retryIntent.putExtra("id", id.toInt())
+                        retryIntent.putExtra("title", list_title)
+                        retryIntent.putExtra("flag", flag)
+                        this.startActivity(retryIntent)
+                    }
+
+                    wrongBtn.setOnClickListener {
+                        val wrongIntent = Intent(this, PlayActivity::class.java)
+                        wrongIntent.putExtra("id", id)
+                        wrongIntent.putExtra("title", list_title)
+                        wrongIntent.putExtra("flag", true)
+                        this.startActivity(wrongIntent)
+                    }
+
+                    homeBtn.setOnClickListener {
+                        val homeIntent = Intent(this, MainActivity::class.java)
+                        this.startActivity(homeIntent)
+                    }
+
+                    items.adapter = FinishAdapter(this, correct, wrong)
+                }
+                finishThread.start()
+            }
         }
 
         //recyclerview of items

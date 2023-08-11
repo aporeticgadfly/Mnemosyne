@@ -24,6 +24,15 @@
         android:id="@+id/checkb"
         android:layout_gravity="center"
         />
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/play_btn"
+        android:layout_gravity="center"
+        android:src="@drawable/play"
+        android:background="@color/black"
+        android:layout_marginRight="5dp"
+        />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,6 +46,7 @@
         android:text="TextView"
         android:layout_gravity="center_vertical"
         style="@style/WhiteEdit"
+        android:ellipsize="end"
         />
     <View
         android:layout_width="0dp"
@@ -45,7 +55,7 @@
 
     <Button
         android:id="@+id/edit_list"
-        android:layout_width="75dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|center_vertical"
         android:layout_marginLeft="15dp"
@@ -54,11 +64,13 @@
         android:textSize="10dp"
         android:text="edit"
         android:textColor="@color/black"
+        android:ellipsize="end"
         style="@style/WhiteBackground"/>
 
     <Button
         android:id="@+id/dele_list"
-        android:layout_width="75dp"
+        android:layout_width="wrap_content"
+        android:ellipsize="end"
         android:layout_height="wrap_content"
         android:layout_gravity="end|center_vertical"
         android:layout_marginLeft="15dp"
