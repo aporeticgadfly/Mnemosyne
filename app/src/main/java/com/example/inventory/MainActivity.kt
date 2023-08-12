@@ -37,6 +37,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.ListItem
 import com.example.inventory.data.ListItemItem
+import com.example.inventory.data.Session
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import org.apache.commons.csv.CSVFormat
@@ -70,34 +71,40 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun showConfirmationDialog(id: Int, title: String) {
-        val builder = AlertDialog.Builder(this)
-        val inflater = LayoutInflater.from(this)
-        val dialogView = inflater.inflate(R.layout.dialog_confirmation, null)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirmation, null)
+        val dialogTitle = dialogView.findViewById<TextView>(R.id.dialog_title)
+        val question = dialogView.findViewById<TextView>(R.id.question)
+        val wholeBtn = dialogView.findViewById<Button>(R.id.whole_btn)
+        val wrongBtn = dialogView.findViewById<Button>(R.id.wrong_btn)
+        val cancelBtn = dialogView.findViewById<Button>(R.id.cancel_btn)
 
+        dialogTitle.text = "Play Options"
+        question.text = "Play whole list or just wrong answers from last session?"
+        val builder = AlertDialog.Builder(this)
         builder.setView(dialogView)
-            .setTitle("Play options")
-            .setMessage("Play whole list or only wrong items from last session?")
-            .setPositiveButton("Whole List") { dialog, _ ->
-                val playIntent = Intent(this, PlayActivity::class.java)
-                playIntent.putExtra("id", id)
-                playIntent.putExtra("title", title)
-                playIntent.putExtra("flag", false)
-                this.startActivity(playIntent)
-                dialog.dismiss()
-            }
-            .setPositiveButton("Only Wrong Items") { dialog, _ ->
-                val playIntent = Intent(this, PlayActivity::class.java)
-                playIntent.putExtra("id", id)
-                playIntent.putExtra("title", title)
-                playIntent.putExtra("flag", true)
-                this.startActivity(playIntent)
-                dialog.dismiss()
-            }
-            .setNeutralButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
+        builder.setCancelable(true)
 
         val dialog = builder.create()
+
+        wholeBtn.setOnClickListener {
+            val playIntent = Intent(this, PlayActivity::class.java)
+            playIntent.putExtra("id", id)
+            playIntent.putExtra("title", title)
+            playIntent.putExtra("flag", false)
+            this.startActivity(playIntent)
+            dialog.dismiss()
+        }
+        wrongBtn.setOnClickListener {
+            val playIntent = Intent(this, PlayActivity::class.java)
+            playIntent.putExtra("id", id)
+            playIntent.putExtra("title", title)
+            playIntent.putExtra("flag", true)
+            this.startActivity(playIntent)
+            dialog.dismiss()
+        }
+        cancelBtn.setOnClickListener {
+            dialog.dismiss()
+        }
         dialog.show()
     }
 
@@ -262,10 +269,20 @@ class TreeNode<T>(value: T) {
 
                 //if view is clicked anywhere else, go to play to play that quiz
                 leafLayout.setOnClickListener {
-                    val playIntent = Intent(this, PlayActivity::class.java)
-                    playIntent.putExtra("id", currentList.id.toInt())
-                    playIntent.putExtra("title", currentList.list_title)
-                    this.startActivity(playIntent)
+                    val playClickObserver = Observer<Session?> { session ->
+                        Log.d("session", session.toString())
+                        if(session == null || session.wrong.size == 0) {
+                            val playIntent = Intent(this, PlayActivity::class.java)
+                            playIntent.putExtra("id", currentList.id)
+                            playIntent.putExtra("title", currentList.list_title)
+                            playIntent.putExtra("flag", false)
+                            this.startActivity(playIntent)
+                        }
+                        else {
+                            showConfirmationDialog(currentList.id, currentList.list_title)
+                        }
+                    }
+                    viewModel.getLastSession(currentList.id).observe(this, playClickObserver)
                 }
 
                 //go to page for editing list
@@ -476,7 +493,20 @@ class TreeNode<T>(value: T) {
 
                         //if view is clicked anywhere else, go to play to play that quiz
                         leafLayout.setOnClickListener {
-                            showConfirmationDialog(currentList.id, currentList.list_title)
+                            //if lastSession == null, dont show; or if no wrong
+                            val playClickObserver = Observer<Session?> { session ->
+                                if(session == null || session.wrong.size == 0) {
+                                    val playIntent = Intent(this, PlayActivity::class.java)
+                                    playIntent.putExtra("id", currentList.id)
+                                    playIntent.putExtra("title", currentList.list_title)
+                                    playIntent.putExtra("flag", false)
+                                    this.startActivity(playIntent)
+                                }
+                                else {
+                                    showConfirmationDialog(currentList.id, currentList.list_title)
+                                }
+                            }
+                            viewModel.getLastSession(currentList.id).observe(this, playClickObserver)
                         }
 
                         //go to page for editing list

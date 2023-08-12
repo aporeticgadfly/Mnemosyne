@@ -15,6 +15,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.ListItem
@@ -44,6 +45,38 @@ class MnemosyneAdapter(
         var editBtn : Button? = view.findViewById(R.id.edit_list)
         var delBtn : Button? = view.findViewById(R.id.dele_list)
 
+    }
+
+    private fun showConfirmationDialog(id: Int, title: String) {
+        val builder = AlertDialog.Builder(context)
+        val inflater = LayoutInflater.from(context)
+        val dialogView = inflater.inflate(R.layout.dialog_confirmation, null)
+
+        builder.setView(dialogView)
+            .setTitle("Play options")
+            .setMessage("Play whole list or only wrong items from last session?")
+            .setPositiveButton("Whole List") { dialog, _ ->
+                val playIntent = Intent(context, PlayActivity::class.java)
+                playIntent.putExtra("id", id)
+                playIntent.putExtra("title", title)
+                playIntent.putExtra("flag", false)
+                context.startActivity(playIntent)
+                dialog.dismiss()
+            }
+            .setPositiveButton("Only Wrong Items") { dialog, _ ->
+                val playIntent = Intent(context, PlayActivity::class.java)
+                playIntent.putExtra("id", id)
+                playIntent.putExtra("title", title)
+                playIntent.putExtra("flag", true)
+                context.startActivity(playIntent)
+                dialog.dismiss()
+            }
+            .setNeutralButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -126,11 +159,7 @@ class MnemosyneAdapter(
 
             //if view is clicked anywhere else, go to play to play that quiz
             holder.itemView.setOnClickListener {
-                val playIntent = Intent(context, PlayActivity::class.java)
-                playIntent.putExtra("id", currentList.id.toInt())
-                playIntent.putExtra("title", currentList.list_title)
-
-                context.startActivity(playIntent)
+                showConfirmationDialog(currentList.id, currentList.list_title)
             }
 
             //go to page for editing list

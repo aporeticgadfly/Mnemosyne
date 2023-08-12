@@ -31,7 +31,7 @@
         android:layout_gravity="center"
         android:src="@drawable/play"
         android:background="@color/black"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="10dp"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -80,7 +80,8 @@
         android:textSize="10dp"
         android:textColor="@color/black"
         android:text="@string/delete"
-        style="@style/WhiteBackground"/>
+        style="@style/WhiteBackground"
+        />
 
 </LinearLayout>
     <View

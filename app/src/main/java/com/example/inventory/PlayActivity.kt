@@ -213,13 +213,21 @@ class PlayActivity : AppCompatActivity() {
             }
         }
 
-        val lastObserver = Observer<Session> { session ->
-            val total = session.correct.size + session.wrong.size
-            val string = session.correct.size.toString() + "/" + total
-            previousScore.text = string
+        val lastObserver = Observer<Session?> { session ->
+            Log.d("session", session.toString())
+            //if no session, make previous invisible
+            if (session == null) {
+                previousLin.visibility = View.GONE
+            }
+            else {
+                val total = session.correct.size + session.wrong.size
+                val string = session.correct.size.toString() + "/" + total
+                previousScore.text = string
+            }
         }
 
         val wrongObserver = Observer<Session> { session ->
+            Log.d("session", session.toString())
             //hide
             //DRY, refactor
             listTitle.text = session.list_title

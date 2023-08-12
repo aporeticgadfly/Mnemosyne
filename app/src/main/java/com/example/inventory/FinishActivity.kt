@@ -118,14 +118,21 @@ class FinishActivity : AppCompatActivity() {
                     val list_title = intent.getStringExtra("title")
                     val id = intent.getIntExtra("id", 0)
 
-                    val lastObserver = Observer<Session> { session ->
-                        val total = session.correct.size + session.wrong.size
-                        val string = session.correct.size.toString() + "/" + total
-                        previousScore.text = string
-                        previousTime.text = session.time_taken.toString()
+                    runOnUiThread {
+                        val lastObserver = Observer<Session?> { session ->
+                            //
+                            if (session == null) {
+                                previousLin.visibility = View.GONE
+                            }
+                            else {
+                                val total = session.correct.size + session.wrong.size
+                                val string = session.correct.size.toString() + "/" + total
+                                previousScore.text = string
+                                previousTime.text = session.time_taken.toString()
+                            }
+                        }
+                        viewModel.getLastSession(id.toInt()).observe(this, lastObserver)
                     }
-
-                    viewModel.getLastSession(id.toInt()).observe(this, lastObserver)
 
                     elapsedTime.text = time_taken
                     if (correct != null) {
