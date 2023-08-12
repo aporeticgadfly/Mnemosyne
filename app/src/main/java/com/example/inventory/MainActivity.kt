@@ -339,216 +339,215 @@ class TreeNode<T>(value: T) {
         lin_main = findViewById(R.id.lin_main)
         val listObserver = Observer<MutableList<ListItem>> { listArr ->
             if (listArr.isNotEmpty()) { //null check
-                globalListArr = listArr
-                //removes any views that didnt get destroyed so no false duplicates
-                /*for (leaf in leafArr) {
-                    val listID : TextView = leaf.findViewById(R.id.list_id)
-                    viewModel.deleteItem(listID.text.toString().toInt())
-                    leafArr.remove(leaf)
-                }*/
+                if (listArr == globalListArr) {
 
-                //
-                //writing the tree
-                var currentNode: TreeNode<String>? = null
-                var previousNode: TreeNode<String>? = null
-                var intermediateNode: TreeNode<String>? = null
-                var nodeArr: MutableList<TreeNode<String>?> = mutableListOf()
-                var finalArr: MutableList<TreeNode<String>?> = mutableListOf()
-                var matchFlag: Boolean = false
-                var matchFlag2: Boolean = false
-                var matchFlag3: Boolean = false
-                var nodeSkipFlag : Boolean = false
+                }
+                else {
+                    globalListArr = listArr
 
-                for (x in 0 until globalListArr.size) {
-                    if (globalListArr[x].list_title.split("::").size == 1) {
-                        var rootNode = TreeNode<String>(globalListArr[x].list_title.split("::")[0])
-                        finalArr.add(rootNode)
-                        continue
-                    }
-                    for (y in 0 until globalListArr[x].list_title.split("::").size) {
-                        //if is root node, check if already used
-                        if (y == 0) {
-                            for (node in nodeArr) {
-                                val ancestor = node?.getAncestor()
-                                if (ancestor?.value == globalListArr[x].list_title.split("::")[y]) {
-                                    previousNode = ancestor
-                                    matchFlag = true
-                                    nodeSkipFlag = true
-                                    break
-                                }
-                            }
-                            if (matchFlag == false) {
-                                var rootNode = TreeNode<String>(globalListArr[x].list_title.split("::")[y])
-                                previousNode = rootNode
-                            }
-                            else {
-                                matchFlag = false
-                            }
-                        } else {
-                            currentNode = TreeNode<String>(globalListArr[x].list_title.split("::")[y])
-                            if (previousNode?.children != null) {
-                                for ((index, node) in previousNode!!.children.withIndex()) {
-                                    if (node.value == currentNode.value) {
-                                        intermediateNode = previousNode
-                                        previousNode = previousNode.children[index]
-                                        matchFlag2 = true
+                    //writing the tree
+                    var currentNode: TreeNode<String>? = null
+                    var previousNode: TreeNode<String>? = null
+                    var intermediateNode: TreeNode<String>? = null
+                    var nodeArr: MutableList<TreeNode<String>?> = mutableListOf()
+                    var finalArr: MutableList<TreeNode<String>?> = mutableListOf()
+                    var matchFlag: Boolean = false
+                    var matchFlag2: Boolean = false
+                    var matchFlag3: Boolean = false
+                    var nodeSkipFlag : Boolean = false
+
+                    for (x in 0 until globalListArr.size) {
+                        if (globalListArr[x].list_title.split("::").size == 1) {
+                            var rootNode = TreeNode<String>(globalListArr[x].list_title.split("::")[0])
+                            finalArr.add(rootNode)
+                            continue
+                        }
+                        for (y in 0 until globalListArr[x].list_title.split("::").size) {
+                            //if is root node, check if already used
+                            if (y == 0) {
+                                for (node in nodeArr) {
+                                    val ancestor = node?.getAncestor()
+                                    if (ancestor?.value == globalListArr[x].list_title.split("::")[y]) {
+                                        previousNode = ancestor
+                                        matchFlag = true
+                                        nodeSkipFlag = true
                                         break
                                     }
                                 }
-                                if (matchFlag2 != true) {
-                                    previousNode.addChild(currentNode)
+                                if (matchFlag == false) {
+                                    var rootNode = TreeNode<String>(globalListArr[x].list_title.split("::")[y])
+                                    previousNode = rootNode
+                                }
+                                else {
+                                    matchFlag = false
+                                }
+                            } else {
+                                currentNode = TreeNode<String>(globalListArr[x].list_title.split("::")[y])
+                                if (previousNode?.children != null) {
+                                    for ((index, node) in previousNode!!.children.withIndex()) {
+                                        if (node.value == currentNode.value) {
+                                            intermediateNode = previousNode
+                                            previousNode = previousNode.children[index]
+                                            matchFlag2 = true
+                                            break
+                                        }
+                                    }
+                                    if (matchFlag2 != true) {
+                                        previousNode.addChild(currentNode)
+                                        intermediateNode = previousNode
+                                        previousNode = currentNode
+                                    }
+                                    else {
+                                        matchFlag2 = false
+                                    }
+                                }
+                                else {
+                                    previousNode?.addChild(currentNode)
                                     intermediateNode = previousNode
                                     previousNode = currentNode
                                 }
+                            }
+                        }
+                        //check if on this level, other nodes w same value
+                        if (nodeSkipFlag == true) {
+                            nodeSkipFlag = false
+                        }
+                        else {
+                            nodeArr.add(intermediateNode)
+                        }
+                    }
+                    for ((index, node) in nodeArr.withIndex()) {
+                        if(index == 0) {
+                            finalArr.add(node)
+                            continue
+                        }
+                        for (x in 0 until finalArr.size) {
+                            if (node != null) {
+                                if(node.equals(finalArr[x])) {
+                                    matchFlag3 = true
+                                    break
+                                }
+                            }
+                        }
+                        if (matchFlag3 == false) {
+                            finalArr.add(node)
+                        }
+                        else {
+                            matchFlag3 = false
+                        }
+                    }
+
+                    for (x in finalArr) {
+                        //move to root node
+                        var y = x?.getAncestor()
+                        //write root node to lin_main
+                        //handle leaves
+                        if (y?.children?.size == 0 || y?.children == null) {
+
+                            val leafLayout = LayoutInflater.from(this).inflate(R.layout.listmain, null)
+                            var currentList: ListItem = ListItem(0, "", mutableListOf())
+
+                            title_text = leafLayout.findViewById(R.id.title_text)
+                            title_text.text = y?.value
+                            for (list in globalListArr) {
+                                if (list.list_title == y?.value) {
+                                    currentList = list
+                                    break
+                                }
+                            }
+
+                            //sets up an invisible id for duplicates and collisions and such
+                            var list_id: TextView = leafLayout.findViewById(R.id.list_id)
+                            list_id.text = currentList.id.toString()
+                            list_id.visibility = View.GONE
+
+                            //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
+                            var rb: RadioButton = leafLayout.findViewById(R.id.radiob)
+                            rb.visibility = View.GONE
+                            rb.setOnClickListener {
+                                if (hovFlag == false) {
+                                    val viewIntent = Intent(this, ViewActivity::class.java)
+                                    viewIntent.putExtra("id", currentList.id.toInt())
+                                    this.startActivity(viewIntent)
+                                } else {
+                                    val historyIntent = Intent(this, HistoryActivity::class.java)
+                                    historyIntent.putExtra("id", currentList.id.toInt())
+                                    this.startActivity(historyIntent)
+                                }
+
+                            }
+
+                            //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
+                            var cb: CheckBox = leafLayout.findViewById(R.id.checkb)
+                            cb.visibility = View.GONE
+                            cb.setOnCheckedChangeListener { buttonView, isChecked ->
+                                if (isChecked) {
+                                    listCbs.add(currentList.id)
+                                } else {
+                                    listCbs.remove(currentList.id)
+                                }
+                            }
+
+                            //if view is clicked anywhere else, go to play to play that quiz
+                            leafLayout.setOnClickListener {
+                                //if lastSession == null, dont show; or if no wrong
+                                val playClickObserver = Observer<Session?> { session ->
+                                    if(session == null || session.wrong.size == 0) {
+                                        val playIntent = Intent(this, PlayActivity::class.java)
+                                        playIntent.putExtra("id", currentList.id)
+                                        playIntent.putExtra("title", currentList.list_title)
+                                        playIntent.putExtra("flag", false)
+                                        this.startActivity(playIntent)
+                                    }
+                                    else {
+                                        showConfirmationDialog(currentList.id, currentList.list_title)
+                                    }
+                                }
+                                viewModel.getLastSession(currentList.id).observe(this, playClickObserver)
+                            }
+
+                            //go to page for editing list
+                            editBtn = leafLayout.findViewById(R.id.edit_list)
+                            editBtn.setOnClickListener {
+                                val editIntent = Intent(this, EditActivity::class.java)
+                                editIntent.putExtra("id", currentList.id);
+                                this.startActivity(editIntent)
+                            }
+
+                            //delete list from db and then recreate page
+                            delBtn = leafLayout.findViewById(R.id.dele_list)
+                            delBtn.setOnClickListener {
+                                viewModel.deleteItem(currentList.id)
+                                leafArr.remove(leafLayout)
+                                Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
+                                this.recreate()
+                            }
+                            leafArr.add(leafLayout as LinearLayout)
+                            lin_main.addView(leafLayout)
+                        }
+                        else {
+                            var expand: View = LayoutInflater.from(this).inflate(R.layout.expand, null)
+                            var expandTitle : TextView = expand.findViewById(R.id.expand_title)
+                            var expandLin : LinearLayout = expand.findViewById(R.id.expandLin)
+                            expandTitle.text = y?.value
+                            var imgBtn : ImageButton = expand.findViewById(R.id.imagebtn)
+                            imgBtn.setOnClickListener {
+                                if(expandLin.visibility == View.GONE) {
+                                    expandLin.visibility = View.VISIBLE
+                                }
                                 else {
-                                    matchFlag2 = false
+                                    expandLin.visibility = View.GONE
                                 }
                             }
-                            else {
-                                previousNode?.addChild(currentNode)
-                                intermediateNode = previousNode
-                                previousNode = currentNode
+                            lin_main.addView(expand)
+                            //call recursfun w current node and view
+                            if (y != null) {
+                                recursFun(y, expand)
                             }
                         }
-                    }
-                    //check if on this level, other nodes w same value
-                    if (nodeSkipFlag == true) {
-                        nodeSkipFlag = false
-                    }
-                    else {
-                        nodeArr.add(intermediateNode)
-                    }
-                }
-                for ((index, node) in nodeArr.withIndex()) {
-                    if(index == 0) {
-                        finalArr.add(node)
-                        continue
-                    }
-                    for (x in 0 until finalArr.size) {
-                        if (node != null) {
-                            if(node.equals(finalArr[x])) {
-                                matchFlag3 = true
-                                break
-                            }
-                        }
-                    }
-                    if (matchFlag3 == false) {
-                        finalArr.add(node)
-                    }
-                    else {
-                        matchFlag3 = false
                     }
                 }
 
-                for (x in finalArr) {
-                    //move to root node
-                    var y = x?.getAncestor()
-                    //write root node to lin_main
-                    //handle leaves
-                    if (y?.children?.size == 0 || y?.children == null) {
-
-                        val leafLayout = LayoutInflater.from(this).inflate(R.layout.listmain, null)
-                        var currentList: ListItem = ListItem(0, "", mutableListOf())
-
-                        title_text = leafLayout.findViewById(R.id.title_text)
-                        title_text.text = y?.value
-                        for (list in globalListArr) {
-                            if (list.list_title == y?.value) {
-                                currentList = list
-                                break
-                            }
-                        }
-
-                        //sets up an invisible id for duplicates and collisions and such
-                        var list_id: TextView = leafLayout.findViewById(R.id.list_id)
-                        list_id.text = currentList.id.toString()
-                        list_id.visibility = View.GONE
-
-                        //sets an invisible radio button that is displayed when the user navigates to view to choose which list to view
-                        var rb: RadioButton = leafLayout.findViewById(R.id.radiob)
-                        rb.visibility = View.GONE
-                        rb.setOnClickListener {
-                            if (hovFlag == false) {
-                                val viewIntent = Intent(this, ViewActivity::class.java)
-                                viewIntent.putExtra("id", currentList.id.toInt())
-                                this.startActivity(viewIntent)
-                            } else {
-                                val historyIntent = Intent(this, HistoryActivity::class.java)
-                                historyIntent.putExtra("id", currentList.id.toInt())
-                                this.startActivity(historyIntent)
-                            }
-
-                        }
-
-                        //sets an invisible checkbox that is displayed when a user tries to export lists to choose which lists to export
-                        var cb: CheckBox = leafLayout.findViewById(R.id.checkb)
-                        cb.visibility = View.GONE
-                        cb.setOnCheckedChangeListener { buttonView, isChecked ->
-                            if (isChecked) {
-                                listCbs.add(currentList.id)
-                            } else {
-                                listCbs.remove(currentList.id)
-                            }
-                        }
-
-                        //if view is clicked anywhere else, go to play to play that quiz
-                        leafLayout.setOnClickListener {
-                            //if lastSession == null, dont show; or if no wrong
-                            val playClickObserver = Observer<Session?> { session ->
-                                if(session == null || session.wrong.size == 0) {
-                                    val playIntent = Intent(this, PlayActivity::class.java)
-                                    playIntent.putExtra("id", currentList.id)
-                                    playIntent.putExtra("title", currentList.list_title)
-                                    playIntent.putExtra("flag", false)
-                                    this.startActivity(playIntent)
-                                }
-                                else {
-                                    showConfirmationDialog(currentList.id, currentList.list_title)
-                                }
-                            }
-                            viewModel.getLastSession(currentList.id).observe(this, playClickObserver)
-                        }
-
-                        //go to page for editing list
-                        editBtn = leafLayout.findViewById(R.id.edit_list)
-                        editBtn.setOnClickListener {
-                            val editIntent = Intent(this, EditActivity::class.java)
-                            editIntent.putExtra("id", currentList.id);
-                            this.startActivity(editIntent)
-                        }
-
-                        //delete list from db and then recreate page
-                        delBtn = leafLayout.findViewById(R.id.dele_list)
-                        delBtn.setOnClickListener {
-                            viewModel.deleteItem(currentList.id)
-                            leafArr.remove(leafLayout)
-                            Toast.makeText(this, "List Deleted", Toast.LENGTH_SHORT).show()
-                            this.recreate()
-                        }
-                        leafArr.add(leafLayout as LinearLayout)
-                        lin_main.addView(leafLayout)
-                    }
-                    else {
-                        var expand: View = LayoutInflater.from(this).inflate(R.layout.expand, null)
-                        var expandTitle : TextView = expand.findViewById(R.id.expand_title)
-                        var expandLin : LinearLayout = expand.findViewById(R.id.expandLin)
-                        expandTitle.text = y?.value
-                        var imgBtn : ImageButton = expand.findViewById(R.id.imagebtn)
-                        imgBtn.setOnClickListener {
-                            if(expandLin.visibility == View.GONE) {
-                                expandLin.visibility = View.VISIBLE
-                            }
-                            else {
-                                expandLin.visibility = View.GONE
-                            }
-                        }
-                        lin_main.addView(expand)
-                        //call recursfun w current node and view
-                        if (y != null) {
-                            recursFun(y, expand)
-                        }
-                    }
-                }
             }
         }
         viewModel.retrieveItems().observe(this, listObserver)
