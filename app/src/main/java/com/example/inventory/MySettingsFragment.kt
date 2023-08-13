@@ -43,12 +43,12 @@ class MySettingsFragment : PreferenceFragmentCompat() {
 
         if (reportPreference != null) {
             val openURL = Intent(android.content.Intent.ACTION_VIEW)
-            openURL.data = Uri.parse("https://github.com/aptaabye/Mnemosyne/issues")
+            openURL.data = Uri.parse("https://github.com/aporeticgadfly/Mnemosyne/issues")
             reportPreference.intent = openURL
         }
         if (privacyPreference != null) {
             val privacyURL = Intent(android.content.Intent.ACTION_VIEW)
-            privacyURL.data = Uri.parse("https://aporeticgadfly.github.io")
+            privacyURL.data = Uri.parse("https://aporeticgadfly.github.io/MnemosynePrivacyPolicy")
             privacyPreference.intent = privacyURL
         }
         if (supportPreference != null) {
