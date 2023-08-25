@@ -8,15 +8,26 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.preference.Preference
+import androidx.preference.PreferenceManager
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var mDrawerLayout: DrawerLayout
+    private lateinit var topAppBar : MaterialToolbar
     override fun onCreate(savedInstanceState: Bundle?) {
+        //setTheme(R.style.Theme_InventoryApp_SettingsActivity)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.topAppBar)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.settings_container, MySettingsFragment())
+            .commit()
+
+
+        val toolbar: MaterialToolbar = findViewById(R.id.topAppBar)
         setSupportActionBar(toolbar)
         val actionbar: ActionBar? = supportActionBar
         actionbar?.apply {
@@ -40,6 +51,10 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 R.id.view_activity -> {
+                    Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
+                }
+
+                R.id.history_activity -> {
                     Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
                 }
 

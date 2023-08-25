@@ -51,4 +51,40 @@ interface ItemDao {
 
     @Query("DELETE from ListItem WHERE id = :id")
     suspend fun delete(id: Int)
+
+
+
+
+    @Query("SELECT * from Session WHERE list_id = :list_id")
+    fun getSessions(list_id: Int): Flow<MutableList<Session>>
+
+    @Query("SELECT * from Session WHERE id = :id")
+    fun getSession(id: Long) : Session
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(session: Session) : Long
+
+    @Update
+    suspend fun update(session: Session)
+
+    @Query("DELETE from Session WHERE id = :id")
+    suspend fun sessionDelete(id: Int)
+
+    @Query("DELETE from Session")
+    suspend fun sessionsDelete()
+
+    @Query("DELETE FROM Session WHERE id = (SELECT id FROM Session ORDER BY id LIMIT 1)")
+    suspend fun deleteLast()
+
+    @Query("SELECT * FROM Session WHERE list_id = :list_id ORDER BY id DESC LIMIT 1")
+    fun getLast(list_id: Int) : Flow<Session>
+
+    @Query("DELETE from Session WHERE id < :cutoff")
+    suspend fun deleteCutoff(cutoff: Int)
+
+    @Query("SELECT COUNT(*) as count FROM Session")
+    fun sessionNum() : Int
+
+    @Query("SELECT id FROM Session ORDER BY id DESC LIMIT 1")
+    fun lowestId() : Int
 }

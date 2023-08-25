@@ -30,5 +30,5 @@ data class ListItem(
     @ColumnInfo(name = "title")
     val list_title: String,
     @ColumnInfo(name = "listitems")
-    val list_items: MutableList<String>
+    val list_items: MutableList<ListItemItem>
 )

@@ -23,6 +23,8 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ListItem
+import com.example.inventory.data.ListItemItem
+import com.example.inventory.data.Session
 import kotlinx.coroutines.launch
 
 /**
@@ -40,7 +42,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
     fun updateItem(
         itemId: Int,
         list_title: String,
-        list_items: MutableList<String>
+        list_items: MutableList<ListItemItem>
     ) {
         val updatedItem = getUpdatedItemEntry(itemId, list_items, list_title)
         updateItem(updatedItem)
@@ -59,7 +61,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
     /**
      * Inserts the new Item into database.
      */
-    fun addNewItem(list_title: String, list_items: MutableList<String>) {
+    fun addNewItem(list_title: String, list_items: MutableList<ListItemItem>) {
         val newItem = getNewItemEntry(list_title, list_items)
         insertItem(newItem)
     }
@@ -114,7 +116,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
      * Returns an instance of the [Item] entity class with the item info entered by the user.
      * This will be used to add a new entry to the Inventory database.
      */
-    private fun getNewItemEntry(list_title: String, list_items: MutableList<String>): ListItem {
+    private fun getNewItemEntry(list_title: String, list_items: MutableList<ListItemItem>): ListItem {
         return ListItem(
             list_title = list_title,
             list_items = list_items
@@ -127,7 +129,7 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
      */
     private fun getUpdatedItemEntry(
         itemId: Int,
-        list_items: MutableList<String>,
+        list_items: MutableList<ListItemItem>,
         list_title: String
     ): ListItem {
         return ListItem(
@@ -135,6 +137,67 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
             list_title = list_title,
             list_items = list_items
         )
+    }
+
+    fun getSessionsView(id: Int): LiveData<MutableList<Session>> {
+        return itemDao.getSessions(id).asLiveData()
+    }
+
+    fun retrieveSession(id: Long) : Session {
+        return itemDao.getSession(id)
+    }
+
+    fun insertSessionItem(session: Session, callback: (Long) -> Unit) {
+        viewModelScope.launch {
+            val id = itemDao.insert(session)
+            callback(id)
+        }
+    }
+
+    fun updateSession(session: Session) {
+        updateSessionItem(session)
+    }
+
+    private fun updateSessionItem(session: Session) {
+        viewModelScope.launch {
+            itemDao.update(session)
+        }
+    }
+
+    fun deleteSession(id: Int) {
+        viewModelScope.launch {
+            itemDao.sessionDelete(id)
+        }
+    }
+
+    fun deleteSessions() {
+        viewModelScope.launch {
+            itemDao.sessionsDelete()
+        }
+    }
+
+    fun sessionNum(): Int {
+        return itemDao.sessionNum()
+    }
+
+    fun lowestId(): Int {
+        return itemDao.lowestId()
+    }
+
+    fun deleteCutoff(cutoff: Int) {
+        viewModelScope.launch {
+            itemDao.deleteCutoff(cutoff)
+        }
+    }
+
+    fun deleteLast() {
+        viewModelScope.launch {
+            itemDao.deleteLast()
+        }
+    }
+
+    fun getLastSession(list_id: Int): LiveData<Session> {
+        return itemDao.getLast(list_id).asLiveData()
     }
 }
 

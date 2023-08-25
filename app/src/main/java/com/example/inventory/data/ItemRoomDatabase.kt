@@ -26,7 +26,7 @@ import com.example.inventory.Converters
 /**
  * Database class with a singleton INSTANCE object.
  */
-@Database(entities = [ListItem::class], version = 1, exportSchema = false)
+@Database(entities = [ListItem::class, Session::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class ItemRoomDatabase : RoomDatabase() {
 

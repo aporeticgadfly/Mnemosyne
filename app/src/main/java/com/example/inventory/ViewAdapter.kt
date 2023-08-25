@@ -9,11 +9,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.inventory.data.ListItemItem
 import java.util.ArrayList
 
 class ViewAdapter(
     private val context: Context,
-    private val items: MutableList<String>?
+    private val items: MutableList<ListItemItem>?
 ) : RecyclerView.Adapter<ViewAdapter.ItemViewHolder>() {
 
     // Provide a reference to the views for each data item
@@ -40,7 +41,7 @@ class ViewAdapter(
      */
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         if(items != null) {
-            holder.textView.text = items[position]
+            holder.textView.text = items[position].text
         }
     }
 
@@ -49,7 +50,7 @@ class ViewAdapter(
      */
     override fun getItemCount(): Int {
         if (items != null) {
-            return items.size - 1
+            return items.size
         }
         else {
             return 0

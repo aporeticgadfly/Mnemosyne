@@ -38,6 +38,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/save"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/save"
+        android:textColor="@color/black"
         app:layout_constraintVertical_bias="0.0"
         style="@style/WhiteBackground"/>
 
@@ -50,6 +51,7 @@
         app:layout_constraintBottom_toBottomOf="@id/back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topAppBarUp"
+        android:textColor="@color/black"
         app:layout_constraintVertical_bias="0.04"
         style="@style/WhiteBackground"/>
 
@@ -59,7 +61,6 @@
         android:layout_height="62dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Title"
         app:layout_constraintBottom_toTopOf="@+id/add_item"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

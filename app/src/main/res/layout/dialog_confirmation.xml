@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Dialog Content -->
+    <!-- Add your content views here -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dialog Title"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dialog Title"
+        android:gravity="center"
+        android:padding="16dp"
+        android:textColor="@android:color/white" />
+
+    <!-- Positive Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/whole_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Whole"
+            android:ellipsize="end"
+            android:textColor="@color/white"
+            android:layout_marginRight="5dp"/>
+
+        <Button
+            android:id="@+id/wrong_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:text="Wrong"
+            android:textColor="@color/white"
+            android:layout_marginRight="5dp"/>
+
+        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:text="Cancel"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+</LinearLayout>

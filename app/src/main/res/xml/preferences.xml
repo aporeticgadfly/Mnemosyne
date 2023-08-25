@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <SwitchPreferenceCompat
+        android:key="noInstant"
+        android:title="Disable automatic answer submission"
+        />
+
+    <Preference
+        android:title="Clear session history"
+        android:key="clearHistory"
+        />
+
+    <SeekBarPreference
+        android:title="Set history record count"
+        android:key="setHistory"
+        app:showSeekBarValue="true"
+        />
+
+    <Preference
+        android:title="Report a bug"
+        android:key="reportBug"
+        />
+
+    <Preference
+        android:title="Support Mnemosyne"
+        android:key="support"
+        />
+
+    <Preference
+        android:title="Privacy Policy"
+        android:key="privacy"
+        />
+
+    <Preference
+        android:title="About"
+        android:key="about"
+        android:summary="App version 0.1"
+        />
+
+</PreferenceScreen>

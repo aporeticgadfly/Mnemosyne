@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
+
     <application
         android:name=".Mnemosyne"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Mnemosyne"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.InventoryApp">
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="false" />
         <activity
             android:name=".ViewActivity"
             android:exported="false" />
         <activity
             android:name=".SettingsActivity"
-            android:exported="false" />
-        <activity
+            >
+        </activity>
+
+    <activity
             android:name=".FinishActivity"
             android:exported="false" />
         <activity
