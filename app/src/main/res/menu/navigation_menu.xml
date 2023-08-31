@@ -11,6 +11,11 @@
         android:id="@+id/view_activity"
         android:icon="@drawable/view"
         android:title="View" />
+
+    <item
+        android:id="@+id/review_activity"
+        android:icon="@drawable/refresh"
+        android:title="Review" />
     <item
         android:id="@+id/history_activity"
         android:icon="@drawable/history"

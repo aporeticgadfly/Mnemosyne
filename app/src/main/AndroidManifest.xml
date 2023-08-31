@@ -15,17 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.InventoryApp">
         <activity
+            android:name=".ReviewActivity"
+            android:exported="false" />
+        <activity
             android:name=".HistoryActivity"
             android:exported="false" />
         <activity
             android:name=".ViewActivity"
             android:exported="false" />
+        <activity android:name=".SettingsActivity"></activity>
         <activity
-            android:name=".SettingsActivity"
-            >
-        </activity>
-
-    <activity
             android:name=".FinishActivity"
             android:exported="false" />
         <activity

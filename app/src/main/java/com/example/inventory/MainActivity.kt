@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var delBtn: Button
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var mDrawerLayout: DrawerLayout
-    private var hovFlag : Boolean = false
+    private var hovFlag : Int = 0
     private var listCbs: MutableList<Int> = arrayListOf()
     private var globalListArr: MutableList<ListItem> = arrayListOf()
     private var leafArr: MutableList<LinearLayout> = arrayListOf()
@@ -244,11 +244,16 @@ class TreeNode<T>(value: T) {
                 var rb: RadioButton = leafLayout.findViewById(R.id.radiob)
                 rb.visibility = View.GONE
                 rb.setOnClickListener {
-                    if (hovFlag == false) {
+                    if (hovFlag == 0) {
                         val viewIntent = Intent(this, ViewActivity::class.java)
                         viewIntent.putExtra("id", currentList.id.toInt())
                         this.startActivity(viewIntent)
-                    } else {
+                    } else if (hovFlag == 1) {
+                        val reviewIntent = Intent(this, ReviewActivity::class.java)
+                        reviewIntent.putExtra("id", currentList.id.toInt())
+                        this.startActivity(reviewIntent)
+                    }
+                    else if (hovFlag == 2) {
                         val historyIntent = Intent(this, HistoryActivity::class.java)
                         historyIntent.putExtra("id", currentList.id.toInt())
                         this.startActivity(historyIntent)
@@ -465,11 +470,16 @@ class TreeNode<T>(value: T) {
                             var rb: RadioButton = leafLayout.findViewById(R.id.radiob)
                             rb.visibility = View.GONE
                             rb.setOnClickListener {
-                                if (hovFlag == false) {
+                                if (hovFlag == 0) {
                                     val viewIntent = Intent(this, ViewActivity::class.java)
                                     viewIntent.putExtra("id", currentList.id.toInt())
                                     this.startActivity(viewIntent)
-                                } else {
+                                } else if (hovFlag == 1) {
+                                    val reviewIntent = Intent(this, ReviewActivity::class.java)
+                                    reviewIntent.putExtra("id", currentList.id.toInt())
+                                    this.startActivity(reviewIntent)
+                                }
+                                else if (hovFlag == 2) {
                                     val historyIntent = Intent(this, HistoryActivity::class.java)
                                     historyIntent.putExtra("id", currentList.id.toInt())
                                     this.startActivity(historyIntent)
@@ -575,7 +585,19 @@ class TreeNode<T>(value: T) {
                     for (leaf in leafArr) {
                         val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
                         val rb: RadioButton = horizont.getChildAt(0) as RadioButton
-                        hovFlag = false
+                        hovFlag = 0
+
+                        rb.visibility = View.VISIBLE
+                    }
+                    topAppBar.menu.findItem(R.id.more_item).isVisible = false
+                    topAppBar.menu.findItem(R.id.cancel_item).isVisible = true
+                }
+
+                R.id.review_activity -> {
+                    for (leaf in leafArr) {
+                        val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
+                        val rb: RadioButton = horizont.getChildAt(0) as RadioButton
+                        hovFlag = 1
 
                         rb.visibility = View.VISIBLE
                     }
@@ -587,7 +609,7 @@ class TreeNode<T>(value: T) {
                     for (leaf in leafArr) {
                         val horizont: LinearLayout = leaf.getChildAt(0) as LinearLayout
                         val rb: RadioButton = horizont.getChildAt(0) as RadioButton
-                        hovFlag = true
+                        hovFlag = 2
 
                         rb.visibility = View.VISIBLE
                     }

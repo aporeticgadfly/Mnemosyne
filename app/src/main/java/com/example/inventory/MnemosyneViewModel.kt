@@ -25,7 +25,9 @@ import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ListItem
 import com.example.inventory.data.ListItemItem
 import com.example.inventory.data.Session
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * View Model to keep a reference to the Inventory repository and an up-to-date list of all items.
@@ -176,8 +178,8 @@ class MnemosyneViewModel(private val itemDao: ItemDao) : ViewModel() {
         }
     }
 
-    fun sessionNum(): Int {
-        return itemDao.sessionNum()
+    suspend fun sessionNum(): Int = withContext(Dispatchers.IO) {
+        return@withContext itemDao.sessionNum()
     }
 
     fun lowestId(): Int {

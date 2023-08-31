@@ -7,6 +7,10 @@
         android:label="Home"
         android:name="com.example.inventory.MainActivity" />
 
+    <activity android:id="@+id/review_activity"
+        android:label="Review"
+        android:name="com.example.inventory.ReviewActivity" />
+
     <activity android:id="@+id/view_activity"
         android:label="View"
         android:name="com.example.inventory.ViewActivity" />

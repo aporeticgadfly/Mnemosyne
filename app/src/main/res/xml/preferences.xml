@@ -17,6 +17,12 @@
         app:showSeekBarValue="true"
         />
 
+    <SeekBarPreference
+        android:title="Set review threshold percentage"
+        android:key="reviewThreshold"
+        app:showSeekBarValue="true"
+        />
+
     <Preference
         android:title="Report a bug"
         android:key="reportBug"

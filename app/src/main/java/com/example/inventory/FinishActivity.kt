@@ -22,7 +22,10 @@ import com.example.inventory.data.ListItemItem
 import com.example.inventory.data.Session
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.w3c.dom.Text
+import java.util.ArrayList
 
 class FinishActivity : AppCompatActivity() {
     private lateinit var listTitle: TextView
@@ -66,9 +69,15 @@ class FinishActivity : AppCompatActivity() {
         //if subset, dont get sessionid; display sessionObj; dont display previous
         //get wrong and correct directly
         val flag = intent.getBooleanExtra("flag", false)
-        if (flag == true) {
-            val flagCorrect = intent.getStringArrayListExtra("correct")
-            val flagWrong = intent.getStringArrayListExtra("wrong")
+        val reviewFlag = intent.getBooleanExtra("reviewFlag", false)
+        if (reviewFlag == true) {
+            val gson = Gson()
+            val flagCorrectInit = intent.getStringExtra("correct")
+            val flagWrongInit = intent.getStringExtra("wrong")
+            val itemType = object : TypeToken<MutableList<ListItemItem>>() {}.type
+            val flagCorrect = gson.fromJson<MutableList<ListItemItem>>(flagCorrectInit, itemType)
+            val flagWrong = gson.fromJson<MutableList<ListItemItem>>(flagWrongInit, itemType)
+
 
             val time_taken = intent.getStringExtra("time")
             val list_title = intent.getStringExtra("title")
@@ -104,69 +113,116 @@ class FinishActivity : AppCompatActivity() {
                 val homeIntent = Intent(this, MainActivity::class.java)
                 this.startActivity(homeIntent)
             }
-
-            items.adapter = FinishWrongAdapter(this, flagCorrect, flagWrong)
+            val correctList: ArrayList<ListItemItem> = ArrayList(flagCorrect)
+            val wrongList: ArrayList<ListItemItem> = ArrayList(flagWrong)
+            items.adapter = FinishWrongAdapter(this, correctList, wrongList)
         }
         else {
-            val sessionID = intent.getLongExtra("sessionID", 0)
-            if (sessionID != null) {
-                val finishThread = Thread {
-                    val sessionObj = viewModel.retrieveSession(sessionID.toLong())
-                    correct = sessionObj.correct
-                    wrong = sessionObj.wrong
-                    val time_taken = intent.getStringExtra("time")
-                    val list_title = intent.getStringExtra("title")
-                    val id = intent.getIntExtra("id", 0)
+            if (flag == true) {
+                val sessionID = intent.getLongExtra("sessionID", 0)
+                Log.d("sessionid", sessionID.toString())
+                if (sessionID != null) {
+                    val finishThread = Thread {
+                        val sessionObj = viewModel.retrieveSession(sessionID.toLong())
+                        correct = sessionObj.correct
+                        wrong = sessionObj.wrong
+                        val time_taken = intent.getStringExtra("time")
+                        val list_title = intent.getStringExtra("title")
+                        val id = intent.getIntExtra("id", 0)
 
-                    runOnUiThread {
-                        val lastObserver = Observer<Session?> { session ->
-                            //
-                            if (session == null) {
-                                previousLin.visibility = View.GONE
-                            }
-                            else {
-                                val total = session.correct.size + session.wrong.size
-                                val string = session.correct.size.toString() + "/" + total
-                                previousScore.text = string
-                                previousTime.text = session.time_taken.toString()
-                            }
+                        previousLin.visibility = View.GONE
+
+                        elapsedTime.text = time_taken
+                        if (correct != null) {
+                            numRight.text = correct.size.toString()
                         }
-                        viewModel.getLastSession(id.toInt()).observe(this, lastObserver)
-                    }
+                        if (wrong != null) {
+                            numWrong.text = wrong.size.toString()
+                        }
+                        listTitle.text = list_title
 
-                    elapsedTime.text = time_taken
-                    if (correct != null) {
-                        numRight.text = correct.size.toString()
-                    }
-                    if (wrong != null) {
-                        numWrong.text = wrong.size.toString()
-                    }
-                    listTitle.text = list_title
+                        retryBtn.setOnClickListener {
+                            val retryIntent = Intent(this, ReviewActivity::class.java)
+                            retryIntent.putExtra("id", id.toInt())
+                            this.startActivity(retryIntent)
+                        }
 
-                    retryBtn.setOnClickListener {
-                        val retryIntent = Intent(this, PlayActivity::class.java)
-                        retryIntent.putExtra("id", id.toInt())
-                        retryIntent.putExtra("title", list_title)
-                        retryIntent.putExtra("flag", flag)
-                        this.startActivity(retryIntent)
-                    }
+                        wrongBtn.visibility = View.GONE
 
-                    wrongBtn.setOnClickListener {
-                        val wrongIntent = Intent(this, PlayActivity::class.java)
-                        wrongIntent.putExtra("id", id)
-                        wrongIntent.putExtra("title", list_title)
-                        wrongIntent.putExtra("flag", true)
-                        this.startActivity(wrongIntent)
-                    }
+                        homeBtn.setOnClickListener {
+                            val homeIntent = Intent(this, MainActivity::class.java)
+                            this.startActivity(homeIntent)
+                        }
 
-                    homeBtn.setOnClickListener {
-                        val homeIntent = Intent(this, MainActivity::class.java)
-                        this.startActivity(homeIntent)
+                        items.adapter = FinishAdapter(this, correct, wrong)
                     }
-
-                    items.adapter = FinishAdapter(this, correct, wrong)
+                    finishThread.start()
                 }
-                finishThread.start()
+            }
+            else {
+                val sessionID = intent.getLongExtra("sessionID", 0)
+                if (sessionID != null) {
+                    val finishThread = Thread {
+                        val sessionObj = viewModel.retrieveSession(sessionID.toLong())
+                        correct = sessionObj.correct
+                        wrong = sessionObj.wrong
+                        val time_taken = intent.getStringExtra("time")
+                        val list_title = intent.getStringExtra("title")
+                        val id = intent.getIntExtra("id", 0)
+
+                        if(wrong.size == 0) {
+                            wrongBtn.visibility = View.GONE
+                        }
+
+                        runOnUiThread {
+                            val lastObserver = Observer<Session?> { session ->
+                                //
+                                if (session == null) {
+                                    previousLin.visibility = View.GONE
+                                } else {
+                                    val total = session.correct.size + session.wrong.size
+                                    val string = session.correct.size.toString() + "/" + total
+                                    previousScore.text = string
+                                    previousTime.text = session.time_taken.toString()
+                                }
+                            }
+                            viewModel.getLastSession(id.toInt()).observe(this, lastObserver)
+                        }
+
+                        elapsedTime.text = time_taken
+                        if (correct != null) {
+                            numRight.text = correct.size.toString()
+                        }
+                        if (wrong != null) {
+                            numWrong.text = wrong.size.toString()
+                        }
+                        listTitle.text = list_title
+
+                        retryBtn.setOnClickListener {
+                            val retryIntent = Intent(this, PlayActivity::class.java)
+                            retryIntent.putExtra("id", id.toInt())
+                            retryIntent.putExtra("title", list_title)
+                            retryIntent.putExtra("flag", flag)
+                            this.startActivity(retryIntent)
+                        }
+
+                        wrongBtn.setOnClickListener {
+                            val wrongIntent = Intent(this, PlayActivity::class.java)
+                            wrongIntent.putExtra("id", id)
+                            wrongIntent.putExtra("title", list_title)
+                            wrongIntent.putExtra("flag", true)
+                            this.startActivity(wrongIntent)
+                        }
+
+                        homeBtn.setOnClickListener {
+                            val homeIntent = Intent(this, MainActivity::class.java)
+                            this.startActivity(homeIntent)
+                        }
+
+                        items.adapter = FinishAdapter(this, correct, wrong)
+                    }
+                    finishThread.start()
+                }
             }
         }
 

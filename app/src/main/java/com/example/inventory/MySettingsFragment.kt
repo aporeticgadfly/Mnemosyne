@@ -17,10 +17,12 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.launch
 
 class MySettingsFragment : PreferenceFragmentCompat() {
     private val viewModel: MnemosyneViewModel by viewModels {
@@ -39,6 +41,7 @@ class MySettingsFragment : PreferenceFragmentCompat() {
         //val nightPreference: SwitchPreferenceCompat? = findPreference("nightMode")
         val instantPreference: SwitchPreferenceCompat? = findPreference("noInstant")
         val setHistoryPreference: SeekBarPreference? = findPreference("setHistory")
+        val reviewThresholdPreference: SeekBarPreference? = findPreference("reviewThreshold")
         val privacyPreference: Preference? = findPreference("privacy")
 
         if (reportPreference != null) {
@@ -101,16 +104,25 @@ class MySettingsFragment : PreferenceFragmentCompat() {
             //get lowest id; delete all from lowestid to sessionNum-value
             setHistoryPreference.setOnPreferenceChangeListener(Preference.OnPreferenceChangeListener { preference, newValue ->
                 val setHistoryThread = Thread {
-                    val sessionNum = viewModel.sessionNum()
-                    if (sessionNum > newValue as Int) {
-                        val lowestId = viewModel.lowestId()
-                        val num = (sessionNum - newValue) + lowestId
-                        viewModel.deleteCutoff(num)
+                    viewModel.viewModelScope.launch {
+                        val sessionNum = viewModel.sessionNum()
+                        if (sessionNum > newValue as Int) {
+                            val lowestId = viewModel.lowestId()
+                            val num = (sessionNum - newValue) + lowestId
+                            viewModel.deleteCutoff(num)
+                        }
                     }
-                }
+                    }
                 setHistoryThread.start()
                 true
             })
+        }
+        if(reviewThresholdPreference != null) {
+            reviewThresholdPreference.setDefaultValue(75)
+            reviewThresholdPreference.min = 0
+            reviewThresholdPreference.max = 100
+            reviewThresholdPreference.seekBarIncrement = 1
+
         }
     }
 }
