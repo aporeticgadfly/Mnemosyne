@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/hist_title"
-            app:layout_constraintBottom_toTopOf="@+id/avg_time"
+            app:layout_constraintBottom_toTopOf="@+id/avg_time_group"
             app:layout_constraintTop_toBottomOf="@+id/topAppBarUp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -41,30 +41,60 @@
             android:text="Example"
             android:textColor="@color/white"
         />
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/avg_time"
-            app:layout_constraintBottom_toTopOf="@+id/avg_score"
+            android:orientation="horizontal"
+            android:id="@+id/avg_time_group"
+            app:layout_constraintBottom_toTopOf="@+id/avg_score_group"
             app:layout_constraintTop_toBottomOf="@+id/hist_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:gravity="center"
-            android:text="Average Time Taken: "
-            android:textColor="@color/white"
-            android:layout_marginTop="20dp"/>
-        <TextView
-            android:layout_width="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/avg_time_label"
+                android:gravity="center"
+                android:text="Average Time Taken: "
+                android:textColor="@color/white"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/avg_time"
+                android:gravity="center"
+                android:textColor="@color/white"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/avg_score"
+            android:orientation="horizontal"
+            android:id="@+id/avg_score_group"
             app:layout_constraintBottom_toTopOf="@+id/indeterminateBarMain"
-            app:layout_constraintTop_toBottomOf="@+id/avg_time"
+            app:layout_constraintTop_toBottomOf="@+id/avg_time_group"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:gravity="center"
-            android:text="Average Score: "
-            android:textColor="@color/white"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="20dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/avg_score_label"
+                android:gravity="center"
+                android:text="Average Score: "
+                android:textColor="@color/white"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/avg_score"
+                android:gravity="center"
+                android:textColor="@color/white"
+                />
+        </LinearLayout>
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
             android:id="@+id/indeterminateBarMain"
@@ -81,7 +111,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@+id/nest"
-            app:layout_constraintTop_toBottomOf="@+id/avg_score"
+            app:layout_constraintTop_toBottomOf="@+id/avg_score_group"
             android:layout_marginTop="30dp"/>
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

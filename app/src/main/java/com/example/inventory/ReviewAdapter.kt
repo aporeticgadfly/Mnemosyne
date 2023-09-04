@@ -16,7 +16,7 @@ import java.util.ArrayList
 class ReviewAdapter(
     private val context: Context,
     private val items: MutableList<ListItemItem>,
-    private val percentages: MutableList<Int>?
+    private val percentages: MutableList<Double>?
 ) : RecyclerView.Adapter<ReviewAdapter.ItemViewHolder>() {
 
     // Provide a reference to the views for each data item
@@ -46,8 +46,8 @@ class ReviewAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         if (items != null && percentages != null && items.size != 0 && percentages.size != 0) {
             holder.firstText.text = items[position].text
-            holder.progress.progress = percentages[position]
-            holder.percentage.text = percentages[position].toString() + "%"
+            holder.progress.progress = percentages[position].toInt()
+            holder.percentage.text = percentages[position].toInt().toString() + "%"
         }
     }
 
@@ -61,7 +61,7 @@ class ReviewAdapter(
         return 0
     }
 
-    fun updateData(newItems: MutableList<ListItemItem>, newPercentages: MutableList<Int>) {
+    fun updateData(newItems: MutableList<ListItemItem>, newPercentages: MutableList<Double>) {
         items?.clear()
         items?.addAll(newItems)
 

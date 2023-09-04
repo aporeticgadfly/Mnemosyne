@@ -33,7 +33,7 @@ class ReviewActivity : AppCompatActivity() {
     private var time_total: Int = 0
     private var itemsArr : java.util.ArrayList<ListItemItem> = arrayListOf()
     private var distinctItems : List<ListItemItem> = arrayListOf()
-    private var percentages : java.util.ArrayList<Int> = arrayListOf()
+    private var percentages : MutableList<Double> = mutableListOf()
     private lateinit var mDrawerLayout: DrawerLayout
     private val viewModel: MnemosyneViewModel by viewModels {
         MnemosyneViewModelFactory(
@@ -47,12 +47,15 @@ class ReviewActivity : AppCompatActivity() {
         val text: String
     )
 
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val reviewThreshold = sharedPreferences.getInt("reviewThreshold", 75)
+    data class ItemsPercentages(val item: ListItemItem, var genCounter: Double, var tallyCounter : Double)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_review)
+
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val reviewThreshold = sharedPreferences.getInt("reviewThreshold", 75)
+
         review = findViewById(R.id.lin_layout)
         title = findViewById(R.id.title)
         playBtn = findViewById(R.id.playbtn)
@@ -69,46 +72,47 @@ class ReviewActivity : AppCompatActivity() {
                 playBtn.visibility = View.GONE
             }
             else {
+                Log.d("sessions", sessions.toString())
+                title.text = sessions[sessions.size-1].list_title
 
                 //fill in adapter and progress bars
                 //for each id, get the object of the id in all of the sessions. if the object appears in correct, add 1 to the int field of the map. if incorrect, minus 1
                 //must count number of times occurred; must use latest edit as basis for litmus
+                val itpArr: MutableList<ItemsPercentages> = mutableListOf()
                 var united = sessions[sessions.size-1].correct + sessions[sessions.size-1].wrong
-                var genCounter : Int = 0
-                var tallyCounter: Int = 0
+                for (item in united) {
+                    val emptyItems = ItemsPercentages(item, 0.0, 0.0)
+                    itpArr.add(emptyItems)
+                }
                 var percentage: Int = 0
-                for(item in united) {
+                for(item in itpArr) {
                     for (session in sessions) {
                         for(wrong in session.wrong) {
-                            if (item.id == wrong.id) {
-                                genCounter++
-                                val itemInfoInstance = ListItemItem(item.id, item.text)
-                                itemsArr.add(itemInfoInstance)
+                            if (item.item.id == wrong.id) {
+                                item.genCounter++
                                 break
                             }
                         }
                         for(corr in session.correct) {
-                            if (item.id == corr.id) {
-                                genCounter++
-                                tallyCounter++
-                                val itemInfoInstance = ListItemItem(item.id, item.text)
-                                itemsArr.add(itemInfoInstance)
+                            if (item.item.id == corr.id) {
+                                item.genCounter++
+                                item.tallyCounter++
                                 break
                             }
                         }
                     }
-                    percentage = (tallyCounter/genCounter)*100
-                    percentages.add(percentage)
                 }
-                //
-                distinctItems = itemsArr.distinct()
-                for ((index, item) in itemsArr.withIndex()) {
-                    if (percentages[index] > reviewThreshold) {
-                        itemsArr.remove(itemsArr[index])
-                        percentages.remove(percentages[index])
+                Log.d("itp", itpArr.toString())
+                var items : MutableList<ListItemItem> = mutableListOf()
+                Log.d("review threshold", reviewThreshold.toString())
+                for (item in itpArr) {
+                    if ((item.tallyCounter/item.genCounter*100) <= reviewThreshold) {
+                        percentages.add(item.tallyCounter/item.genCounter*100)
+                        items.add(item.item)
                     }
                 }
-                reviewAdapter.updateData(distinctItems.toMutableList(), percentages.toMutableList())
+                Log.d("percentages", percentages.toString())
+                reviewAdapter.updateData(items, percentages.toMutableList())
 
             }
         }

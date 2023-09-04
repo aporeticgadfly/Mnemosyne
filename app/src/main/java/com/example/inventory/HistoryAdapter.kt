@@ -10,12 +10,13 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.inventory.data.ListItemItem
 import java.util.ArrayList
 
 class HistoryAdapter(
     private val context: Context,
-    private val items: MutableList<HistoryActivity.itemInfo>,
-    private val percentages: MutableList<Int>?
+    private val items: MutableList<ListItemItem>,
+    private val percentages: MutableList<Double>?
 ) : RecyclerView.Adapter<HistoryAdapter.ItemViewHolder>() {
 
     // Provide a reference to the views for each data item
@@ -45,8 +46,8 @@ class HistoryAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         if (items != null && percentages != null && items.size != 0 && percentages.size != 0) {
             holder.firstText.text = items[position].text
-            holder.progress.progress = percentages[position]
-            holder.percentage.text = percentages[position].toString() + "%"
+            holder.progress.progress = percentages[position].toInt()
+            holder.percentage.text = percentages[position].toInt().toString() + "%"
         }
     }
 
@@ -54,15 +55,18 @@ class HistoryAdapter(
      * Return the size of your dataset (invoked by the layout manager)
      */
     override fun getItemCount(): Int {
+        Log.d("size", items.size.toString())
         if (items != null) {
             return items.size
         }
         return 0
     }
 
-    fun updateData(newItems: MutableList<HistoryActivity.itemInfo>, newPercentages: MutableList<Int>) {
+    fun updateData(newItems: MutableList<ListItemItem>, newPercentages: MutableList<Double>) {
+        Log.d("newItems", newItems.toString())
         items?.clear()
         items?.addAll(newItems)
+        Log.d("updateData items size", items.size.toString())
 
         percentages?.clear()
         percentages?.addAll(newPercentages)

@@ -65,32 +65,31 @@ class PlayActivity : AppCompatActivity() {
         val session: Session = Session(0, list_title.toString(), id, seconds,
             sessionObj["correct"]!!, sessionObj["wrong"]!!
         )
-
-            viewModel.insertSessionItem(session) {sessionID ->
-                val play1Thread = Thread {
-                    viewModel.viewModelScope.launch {
-                        val sessionNum = viewModel.sessionNum()
-                        val applicationContext = application.applicationContext
-                        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                        val seek = sharedPreferences.getInt("setHistory", 100)
-                        if (sessionNum > seek) {
-                            viewModel.deleteLast()
-                        }
+        viewModel.insertSessionItem(session) {sessionID ->
+            val play1Thread = Thread {
+                viewModel.viewModelScope.launch {
+                    val sessionNum = viewModel.sessionNum()
+                    val applicationContext = application.applicationContext
+                    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                    val seek = sharedPreferences.getInt("setHistory", 100)
+                    if (sessionNum > seek) {
+                        viewModel.deleteLast()
                     }
-                    val finishIntent = Intent(this, FinishActivity::class.java)
-                    finishIntent.putExtra("sessionID", sessionID)
-                    finishIntent.putExtra("time", elapsedTime.text.toString())
-                    finishIntent.putExtra("title", list_title)
-                    finishIntent.putExtra("id", id)
-                    finishIntent.putExtra("flag", flag)
-                    if(reviewFlag == false) {
-                        finishIntent.putExtra("reviewFlag", reviewFlag)
-                    }
-                    //if flag, put more? not listitemitem but regular list
-                    this.startActivity(finishIntent)
                 }
-                play1Thread.start()
+                val finishIntent = Intent(this, FinishActivity::class.java)
+                finishIntent.putExtra("sessionID", sessionID)
+                finishIntent.putExtra("time", elapsedTime.text.toString())
+                finishIntent.putExtra("title", list_title)
+                finishIntent.putExtra("id", id)
+                finishIntent.putExtra("flag", flag)
+                if(reviewFlag == false) {
+                    finishIntent.putExtra("reviewFlag", reviewFlag)
+                }
+                //if flag, put more? not listitemitem but regular list
+                this.startActivity(finishIntent)
             }
+            play1Thread.start()
+        }
     }
 
     fun startWrongFinish(sessionWrongObj: MutableMap<String, MutableList<ListItemItem>>, list_title: String, id: Int, flag: Boolean) {

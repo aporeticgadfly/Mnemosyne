@@ -119,46 +119,46 @@ class FinishActivity : AppCompatActivity() {
         }
         else {
             if (flag == true) {
-                val sessionID = intent.getLongExtra("sessionID", 0)
-                Log.d("sessionid", sessionID.toString())
-                if (sessionID != null) {
-                    val finishThread = Thread {
-                        val sessionObj = viewModel.retrieveSession(sessionID.toLong())
-                        correct = sessionObj.correct
-                        wrong = sessionObj.wrong
-                        val time_taken = intent.getStringExtra("time")
-                        val list_title = intent.getStringExtra("title")
-                        val id = intent.getIntExtra("id", 0)
 
-                        previousLin.visibility = View.GONE
+                val correctExtra = intent.getStringExtra("correct")
+                val wrongExtra = intent.getStringExtra("wrong")
+                val gson = Gson()
+                val itemType = object : TypeToken<MutableList<ListItemItem>>() {}.type
+                val correct = gson.fromJson<MutableList<ListItemItem>>(correctExtra, itemType)
+                val wrong = gson.fromJson<MutableList<ListItemItem>>(wrongExtra, itemType)
 
-                        elapsedTime.text = time_taken
-                        if (correct != null) {
-                            numRight.text = correct.size.toString()
-                        }
-                        if (wrong != null) {
-                            numWrong.text = wrong.size.toString()
-                        }
-                        listTitle.text = list_title
 
-                        retryBtn.setOnClickListener {
-                            val retryIntent = Intent(this, ReviewActivity::class.java)
-                            retryIntent.putExtra("id", id.toInt())
-                            this.startActivity(retryIntent)
-                        }
+                val time_taken = intent.getStringExtra("time")
+                val list_title = intent.getStringExtra("title")
+                val id = intent.getIntExtra("id", 0)
 
-                        wrongBtn.visibility = View.GONE
+                previousLin.visibility = View.GONE
 
-                        homeBtn.setOnClickListener {
-                            val homeIntent = Intent(this, MainActivity::class.java)
-                            this.startActivity(homeIntent)
-                        }
-
-                        items.adapter = FinishAdapter(this, correct, wrong)
-                    }
-                    finishThread.start()
+                elapsedTime.text = time_taken
+                if (correct != null) {
+                    numRight.text = correct.size.toString()
                 }
-            }
+                if (wrong != null) {
+                    numWrong.text = wrong.size.toString()
+                }
+                listTitle.text = list_title
+
+                retryBtn.setOnClickListener {
+                    val retryIntent = Intent(this, ReviewActivity::class.java)
+                    retryIntent.putExtra("id", id.toInt())
+                    this.startActivity(retryIntent)
+                }
+
+                wrongBtn.visibility = View.GONE
+
+                homeBtn.setOnClickListener {
+                    val homeIntent = Intent(this, MainActivity::class.java)
+                    this.startActivity(homeIntent)
+                }
+
+                items.adapter = FinishAdapter(this, correct, wrong)
+
+                }
             else {
                 val sessionID = intent.getLongExtra("sessionID", 0)
                 if (sessionID != null) {

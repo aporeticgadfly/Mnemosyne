@@ -69,7 +69,7 @@ class MySettingsFragment : PreferenceFragmentCompat() {
             }
         }
         if(aboutPreference != null) {
-            aboutPreference.summary = "Version Number: 0.0.1"
+            aboutPreference.summary = "Version Number: 2.0"
         }
         if(instantPreference != null) {
             instantPreference.setDefaultValue(false)

@@ -27,11 +27,13 @@ import com.google.android.material.navigation.NavigationView
 class HistoryActivity : AppCompatActivity() {
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var mDrawerLayout: DrawerLayout
-    private var score_total: Int = 0
+    private var score_total: Double = 0.0
+    var items : MutableList<ListItemItem> = mutableListOf()
+    private var itemsArr : java.util.ArrayList<ListItemItem> = arrayListOf()
+    private var scoreArr : MutableList<Double> = mutableListOf()
+    private var score_agg : Double = 0.0
     private var time_total: Int = 0
-    private var items : java.util.ArrayList<itemInfo> = arrayListOf()
-    private var distinctItems : List<itemInfo> = arrayListOf()
-    private var percentages : java.util.ArrayList<Int> = arrayListOf()
+    private var percentages : MutableList<Double> = mutableListOf()
     private val viewModel: MnemosyneViewModel by viewModels {
         MnemosyneViewModelFactory(
             (this?.application as Mnemosyne).database
@@ -44,6 +46,8 @@ class HistoryActivity : AppCompatActivity() {
         val text: String
             )
 
+    data class ItemsPercentages(val item: ListItemItem, var genCounter: Int, var tallyCounter : Int)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
@@ -53,7 +57,7 @@ class HistoryActivity : AppCompatActivity() {
         val progressBar: ProgressBar = findViewById(R.id.indeterminateBarMain)
         val history: RecyclerView = findViewById(R.id.lin_layout)
 
-        val historyAdapter = HistoryAdapter(this, items, percentages)
+        val historyAdapter = HistoryAdapter(this, itemsArr, percentages)
         history.adapter = historyAdapter
 
         val sessionsObserver = Observer<MutableList<Session>> { sessions ->
@@ -69,48 +73,63 @@ class HistoryActivity : AppCompatActivity() {
                 titleText.text = sessions[0].list_title
 
                 //calculate and fill in avg score and time
+                Log.d("sessions", sessions.toString())
                 for(session in sessions) {
-                    score_total += session.correct.size - session.wrong.size
                     time_total += session.time_taken
+
+                    var total_size = session.correct.size + session.wrong.size
+                    var score = session.correct.size.toDouble()/total_size.toDouble()*100
+                    Log.d("score", score.toString())
+                    scoreArr.add(score)
                 }
-                avgScore.text = ((score_total/sessions.size)*100).toString()
-                avgTime.text = ((time_total/sessions.size)*100).toString()
+                Log.d("scoreArr", scoreArr.toString())
+                Log.d("scoreArr size", scoreArr.size.toString())
+                for(score in scoreArr) {
+                    score_agg = score_agg + score
+                }
+                Log.d("scoreagg", score_agg.toString())
+                score_total = score_agg/scoreArr.size.toDouble()
+                Log.d("score_total", score_total.toString())
+                avgScore.text = score_total.toInt().toString()
+                avgTime.text = ((time_total.toDouble()/sessions.size.toDouble())).toInt().toString()
 
                 //use avg score for progressmain
-                progressBar.progress = (score_total/sessions.size)*100
+                progressBar.progress = score_total.toInt()
 
                 //fill in adapter and progress bars
                 //for each id, get the object of the id in all of the sessions. if the object appears in correct, add 1 to the int field of the map. if incorrect, minus 1
                 //must count number of times occurred; must use latest edit as basis for litmus
+                val itpArr: MutableList<ReviewActivity.ItemsPercentages> = mutableListOf()
                 var united = sessions[sessions.size-1].correct + sessions[sessions.size-1].wrong
-                var genCounter : Int = 0
-                var tallyCounter: Int = 0
+                for (item in united) {
+                    val emptyItems = ReviewActivity.ItemsPercentages(item, 0.0, 0.0)
+                    itpArr.add(emptyItems)
+                }
                 var percentage: Int = 0
-                for(item in united) {
+                for(item in itpArr) {
                     for (session in sessions) {
                         for(wrong in session.wrong) {
-                            if (item.id == wrong.id) {
-                                genCounter++
-                                val itemInfoInstance = itemInfo(item.id, item.text)
-                                items.add(itemInfoInstance)
+                            if (item.item.id == wrong.id) {
+                                item.genCounter++
                                 break
                             }
                         }
                         for(corr in session.correct) {
-                            if (item.id == corr.id) {
-                                genCounter++
-                                tallyCounter++
-                                val itemInfoInstance = itemInfo(item.id, item.text)
-                                items.add(itemInfoInstance)
+                            if (item.item.id == corr.id) {
+                                item.genCounter++
+                                item.tallyCounter++
                                 break
                             }
                         }
                     }
-                    percentage = (tallyCounter/genCounter)*100
-                    percentages.add(percentage)
                 }
-                distinctItems = items.distinct()
-                historyAdapter.updateData(distinctItems.toMutableList(), percentages.toMutableList())
+                for (item in itpArr) {
+                    percentages.add(item.tallyCounter / item.genCounter * 100)
+                    items.add(item.item)
+                }
+                Log.d("items", items.toString())
+                Log.d("percentages", percentages.toString())
+                historyAdapter.updateData(items, percentages.toMutableList())
 
             }
         }
