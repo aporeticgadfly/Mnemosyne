@@ -41,7 +41,7 @@
     <Preference
         android:title="About"
         android:key="about"
-        android:summary="App version 0.1"
+        android:summary="App version 1.2.0"
         />
 
 </PreferenceScreen>
