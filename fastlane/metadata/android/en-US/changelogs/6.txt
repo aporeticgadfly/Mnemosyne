@@ -1,0 +1,5 @@
+[Version 1.2.3] - 26 02 2025                                                                         
+Added
+Fixed
+- Removed DependencyInfoBlock in APK
+- Fixed full_description.txt formatting
