@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.content.Intent
 import android.net.Uri

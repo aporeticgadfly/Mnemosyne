@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.Zarathustra.Mnemosyne.data.ItemDao
-import com.Zarathustra.Mnemosyne.data.ListItem
-import com.Zarathustra.Mnemosyne.data.ListItemItem
-import com.Zarathustra.Mnemosyne.data.Session
+import com.zarathustra.mnemosyne.data.ItemDao
+import com.zarathustra.mnemosyne.data.ListItem
+import com.zarathustra.mnemosyne.data.ListItemItem
+import com.zarathustra.mnemosyne.data.Session
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

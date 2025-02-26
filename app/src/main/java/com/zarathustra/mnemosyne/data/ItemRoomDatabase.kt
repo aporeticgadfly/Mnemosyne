@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.Zarathustra.Mnemosyne.data
+package com.zarathustra.mnemosyne.data
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.Zarathustra.Mnemosyne.Converters
+import com.zarathustra.mnemosyne.Converters
 
 /**
  * Database class with a singleton INSTANCE object.

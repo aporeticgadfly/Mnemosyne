@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.Zarathustra.Mnemosyne.data.ListItemItem
+import com.zarathustra.mnemosyne.data.ListItemItem
 
 class ReviewAdapter(
     private val context: Context,

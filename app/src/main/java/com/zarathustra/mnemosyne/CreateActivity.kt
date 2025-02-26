@@ -1,10 +1,10 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
+import android.R.layout
+import android.R.id
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -16,21 +16,20 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.Observer
-import com.Zarathustra.Mnemosyne.data.ListItem
-import com.Zarathustra.Mnemosyne.data.ListItemItem
+import com.zarathustra.mnemosyne.data.ListItemItem
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import java.util.Stack
 
-class EditActivity : AppCompatActivity() {
+class CreateActivity : AppCompatActivity() {
     private lateinit var addItem: ImageView
     private lateinit var listTitle: EditText
     private lateinit var backBtn: Button
     private lateinit var saveBtn: Button
     private lateinit var itemLin: LinearLayout
-    private lateinit var itemLin2: LinearLayout
     private lateinit var itemList: EditText
     private lateinit var topAppBar: MaterialToolbar
     private lateinit var mDrawerLayout: DrawerLayout
@@ -39,8 +38,9 @@ class EditActivity : AppCompatActivity() {
     private var listArr: MutableList<ListItemItem> = arrayListOf()
     private var count: Int = 0
     private var countArr: MutableList<Int> = arrayListOf()
-    private var nonNullId: Int = 0
 
+    //private lateinit var updateItem: EditText
+    //private lateinit var itemList: LinearLayout
     private lateinit var linear_layout2: LinearLayout
 
     private val viewModel: MnemosyneViewModel by viewModels {
@@ -50,83 +50,90 @@ class EditActivity : AppCompatActivity() {
         )
     }
 
+
+    /**
+     * The adapter which we have prepared.
+     */
+    //private lateinit var ListItemAdapter: ListItemAdapter
+
+    /**
+     * To hold the reference to the items to be updated as a stack.
+     * We can just remove and get the item with [Stack] in one shot.
+     */
+    //private var modelToBeUpdated: Stack<ListItemAdapter.ItemModel> = Stack()
+
+    /**
+     * The listener which we have defined in [OnProductClickListener]. Will be added to the adapter
+     * which constructing the adapter
+     */
+
+    private val mOnItemClickListener = object : ListItemAdapter.OnItemClickListener {
+
+        /*override fun onUpdate(position: Int, model: ListItemAdapter.ItemModel, s: Editable?) {
+
+                // store this model that we want to update
+                // we will .pop() it when we want to update
+                // the item in the adapter
+                modelToBeUpdated.add(model)
+                model.content=s.toString()
+                ListItemAdapter.updateItem(model)
+
+
+            }*/
+
+        override fun onDelete(model: ListItemAdapter.ItemModel) {
+            //ListItemAdapter.removeItem(model)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit)
+        setContentView(R.layout.activity_create)
 
         addItem = findViewById(R.id.add_item)
         listTitle = findViewById(R.id.editTitle)
         linear_layout2 = findViewById(R.id.lin_layout)
 
-        val editObserver = Observer<ListItem> { list ->
-            Log.d("edit", list.toString())
-            listTitle.setText(list.list_title)
-            for(x in 0 until list.list_items.size) {
-                val view: View = LayoutInflater.from(this).inflate(R.layout.createiteminput, null)
-                lateinit var delBtn: Button
-                delBtn = view.findViewById(R.id.dele_item)
 
-                delBtn.setOnClickListener {
-                    linear_layout2.removeView(view)
-                    Toast.makeText(this, "List Item Deleted", Toast.LENGTH_SHORT).show()
-                }
-                lateinit var itemEdit: EditText
-                itemEdit = view.findViewById(R.id.list_itemlist)
-                itemEdit.setText(list.list_items[x].text)
-                linear_layout2.addView(view)
+        addItem.setOnClickListener {
+
+            val view: View = LayoutInflater.from(this).inflate(R.layout.createiteminput, null)
+            lateinit var delBtn: Button
+            delBtn = view.findViewById(R.id.dele_item)
+
+            delBtn.setOnClickListener {
+                linear_layout2.removeView(view)
+                val contextView = findViewById<View>(R.id.lin_layout)
+                Toast.makeText(this, "List Item Deleted", Toast.LENGTH_SHORT).show()
             }
-
-            addItem.setOnClickListener {
-
-                val view: View = LayoutInflater.from(this).inflate(R.layout.createiteminput, null)
-                lateinit var delBtn: Button
-                delBtn = view.findViewById(R.id.dele_item)
-                countArr.add(count)
-
-                delBtn.setOnClickListener {
-                    linear_layout2.removeView(view)
-                    val contextView = findViewById<View>(R.id.lin_layout)
-                    Toast.makeText(this, "List Item Deleted", Toast.LENGTH_SHORT).show()
-                }
-                linear_layout2.addView(view)
+            linear_layout2.addView(view)
 
 
-            }
-
-            backBtn = findViewById(R.id.back)
-            backBtn.setOnClickListener {
-                val backIntent = Intent(this, MainActivity::class.java)
-                this.startActivity(backIntent)
-            }
-
-            saveBtn = findViewById(R.id.save)
-
-            saveBtn.setOnClickListener {
-                //must diff with previous values
-                listTitle = findViewById(R.id.editTitle)
-                title_text = listTitle.text.toString()
-                val layoutChildren: Int = linear_layout2.childCount
-
-                for(x in 0 until layoutChildren) {
-                    itemLin = linear_layout2.getChildAt(x) as LinearLayout
-                    itemList = itemLin.findViewById(R.id.list_itemlist)
-                    list_text = itemList.text.toString()
-                    val item: ListItemItem = ListItemItem(0, list_text)
-                    listArr.add(item)
-                }
-                val passedId = intent.getIntExtra("id", 0)
-                if (passedId != null) {
-                    nonNullId = passedId.toInt()
-                }
-                viewModel.updateItem(nonNullId, title_text, listArr)
-                val saveIntent = Intent(this, MainActivity::class.java)
-                this.startActivity(saveIntent)
-            }
         }
 
-        val passedId = intent.getIntExtra("id", 0)
-        if (passedId != null) {
-            viewModel.retrieveItem(passedId.toInt()).observe(this, editObserver)
+        backBtn = findViewById(R.id.back)
+        backBtn.setOnClickListener {
+            val backIntent = Intent(this, MainActivity::class.java)
+            this.startActivity(backIntent)
+        }
+
+        saveBtn = findViewById(R.id.save)
+
+        saveBtn.setOnClickListener {
+            //ListItemAdapter.submitValues()
+            listTitle = findViewById(R.id.editTitle)
+            title_text = listTitle.text.toString()
+            val layoutChildren: Int = linear_layout2.childCount
+            for (x in 0 until layoutChildren) {
+                itemLin = linear_layout2.getChildAt(x) as LinearLayout
+                itemList = itemLin.findViewById(R.id.list_itemlist)
+                list_text = itemList.text.toString()
+                val item: ListItemItem = ListItemItem(0, list_text)
+                listArr.add(item)
+            }
+            viewModel.addNewItem(title_text, listArr)
+            val saveIntent = Intent(this, MainActivity::class.java)
+            this.startActivity(saveIntent)
         }
 
         mDrawerLayout = findViewById(R.id.my_drawer_layout)

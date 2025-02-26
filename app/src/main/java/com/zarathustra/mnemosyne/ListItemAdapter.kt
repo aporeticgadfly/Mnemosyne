@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import kotlinx.coroutines.*
 import android.content.Context

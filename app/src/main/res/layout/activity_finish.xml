@@ -154,7 +154,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/previous_l"
         android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/retry_btn"
+        app:layout_constraintBottom_toTopOf="@+id/btn_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/elapsed_time_l"

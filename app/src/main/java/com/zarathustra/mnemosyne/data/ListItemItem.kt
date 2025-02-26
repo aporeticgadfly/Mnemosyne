@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne.data
+package com.zarathustra.mnemosyne.data
 
 import android.os.Parcel
 import android.os.Parcelable

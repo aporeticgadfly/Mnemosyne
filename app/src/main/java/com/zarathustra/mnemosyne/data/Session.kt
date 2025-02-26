@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne.data
+package com.zarathustra.mnemosyne.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

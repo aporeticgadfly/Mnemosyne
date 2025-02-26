@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.content.Intent
 import android.os.Build
@@ -17,8 +17,8 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
-import com.Zarathustra.Mnemosyne.data.ListItemItem
-import com.Zarathustra.Mnemosyne.data.Session
+import com.zarathustra.mnemosyne.data.ListItemItem
+import com.zarathustra.mnemosyne.data.Session
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson

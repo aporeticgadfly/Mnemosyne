@@ -1,36 +1,37 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
-import com.Zarathustra.Mnemosyne.data.ListItemItem
-import com.Zarathustra.Mnemosyne.data.Session
+import com.zarathustra.mnemosyne.data.ListItemItem
+import com.zarathustra.mnemosyne.data.Session
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
-import com.google.gson.Gson
 
-class ReviewActivity : AppCompatActivity() {
-    private lateinit var review : RecyclerView
-    private lateinit var title : TextView
-    private lateinit var playBtn : Button
-    private var score_total: Int = 0
-    private var time_total: Int = 0
-    private var itemsArr : java.util.ArrayList<ListItemItem> = arrayListOf()
-    private var distinctItems : List<ListItemItem> = arrayListOf()
-    private var percentages : MutableList<Double> = mutableListOf()
+class HistoryActivity : AppCompatActivity() {
+    private lateinit var topAppBar: MaterialToolbar
     private lateinit var mDrawerLayout: DrawerLayout
+    private var score_total: Double = 0.0
+    var items : MutableList<ListItemItem> = mutableListOf()
+    private var itemsArr : java.util.ArrayList<ListItemItem> = arrayListOf()
+    private var scoreArr : MutableList<Double> = mutableListOf()
+    private var score_agg : Double = 0.0
+    private var time_total: Int = 0
+    private var percentages : MutableList<Double> = mutableListOf()
     private val viewModel: MnemosyneViewModel by viewModels {
         MnemosyneViewModelFactory(
             (this?.application as Mnemosyne).database
@@ -41,43 +42,65 @@ class ReviewActivity : AppCompatActivity() {
     data class itemInfo (
         val id : Int,
         val text: String
-    )
+            )
 
-    data class ItemsPercentages(val item: ListItemItem, var genCounter: Double, var tallyCounter : Double)
+    data class ItemsPercentages(val item: ListItemItem, var genCounter: Int, var tallyCounter : Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_review)
+        setContentView(R.layout.activity_history)
+        val titleText : TextView = findViewById(R.id.hist_title)
+        val avgScore : TextView = findViewById(R.id.avg_score)
+        val avgTime : TextView = findViewById(R.id.avg_time)
+        val progressBar: ProgressBar = findViewById(R.id.indeterminateBarMain)
+        val history: RecyclerView = findViewById(R.id.lin_layout)
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val reviewThreshold = sharedPreferences.getInt("reviewThreshold", 75)
-
-        review = findViewById(R.id.lin_layout)
-        title = findViewById(R.id.title)
-        playBtn = findViewById(R.id.playbtn)
-
-        val list_id = intent.getIntExtra("id", 0)
-
-        val reviewAdapter = ReviewAdapter(this, itemsArr, percentages)
-        review.adapter = reviewAdapter
+        val historyAdapter = HistoryAdapter(this, itemsArr, percentages)
+        history.adapter = historyAdapter
 
         val sessionsObserver = Observer<MutableList<Session>> { sessions ->
             if(sessions.size == 0) {
-                title.text = "No sessions for this list yet"
-                review.visibility = View.INVISIBLE
-                playBtn.visibility = View.GONE
+                titleText.text = "No sessions for this list yet"
+                avgScore.visibility = View.INVISIBLE
+                avgTime.visibility = View.INVISIBLE
+                progressBar.visibility = View.INVISIBLE
             }
             else {
+
+                //fill in title
+                titleText.text = sessions[0].list_title
+
+                //calculate and fill in avg score and time
                 Log.d("sessions", sessions.toString())
-                title.text = sessions[sessions.size-1].list_title
+                for(session in sessions) {
+                    time_total += session.time_taken
+
+                    var total_size = session.correct.size + session.wrong.size
+                    var score = session.correct.size.toDouble()/total_size.toDouble()*100
+                    Log.d("score", score.toString())
+                    scoreArr.add(score)
+                }
+                Log.d("scoreArr", scoreArr.toString())
+                Log.d("scoreArr size", scoreArr.size.toString())
+                for(score in scoreArr) {
+                    score_agg = score_agg + score
+                }
+                Log.d("scoreagg", score_agg.toString())
+                score_total = score_agg/scoreArr.size.toDouble()
+                Log.d("score_total", score_total.toString())
+                avgScore.text = score_total.toInt().toString()
+                avgTime.text = ((time_total.toDouble()/sessions.size.toDouble())).toInt().toString()
+
+                //use avg score for progressmain
+                progressBar.progress = score_total.toInt()
 
                 //fill in adapter and progress bars
                 //for each id, get the object of the id in all of the sessions. if the object appears in correct, add 1 to the int field of the map. if incorrect, minus 1
                 //must count number of times occurred; must use latest edit as basis for litmus
-                val itpArr: MutableList<ItemsPercentages> = mutableListOf()
+                val itpArr: MutableList<ReviewActivity.ItemsPercentages> = mutableListOf()
                 var united = sessions[sessions.size-1].correct + sessions[sessions.size-1].wrong
                 for (item in united) {
-                    val emptyItems = ItemsPercentages(item, 0.0, 0.0)
+                    val emptyItems = ReviewActivity.ItemsPercentages(item, 0.0, 0.0)
                     itpArr.add(emptyItems)
                 }
                 var percentage: Int = 0
@@ -98,46 +121,30 @@ class ReviewActivity : AppCompatActivity() {
                         }
                     }
                 }
-                Log.d("itp", itpArr.toString())
-                var items : MutableList<ListItemItem> = mutableListOf()
-                Log.d("review threshold", reviewThreshold.toString())
                 for (item in itpArr) {
-                    if ((item.tallyCounter/item.genCounter*100) <= reviewThreshold) {
-                        percentages.add(item.tallyCounter/item.genCounter*100)
-                        items.add(item.item)
-                    }
+                    percentages.add(item.tallyCounter / item.genCounter * 100)
+                    items.add(item.item)
                 }
+                Log.d("items", items.toString())
                 Log.d("percentages", percentages.toString())
-                reviewAdapter.updateData(items, percentages.toMutableList())
+                historyAdapter.updateData(items, percentages.toMutableList())
 
             }
         }
 
         //get sessions w list id
-        viewModel.getSessionsView(list_id).observe(this, sessionsObserver)
-
-        playBtn.setOnClickListener {
-            val gson = Gson()
-            val itemInfoListJson = gson.toJson(itemsArr)
-            val playIntent = Intent(this, PlayActivity::class.java)
-            playIntent.putExtra("id", list_id)
-            playIntent.putExtra("title", title.text)
-            playIntent.putExtra("flag", false)////
-            playIntent.putExtra("j", itemInfoListJson)
-            playIntent.putExtra("reviewFlag", true)
-            this.startActivity(playIntent)
-        }
+        val id = intent.getIntExtra("id", 0)
+        viewModel.getSessionsView(id).observe(this, sessionsObserver)
 
         mDrawerLayout = findViewById(R.id.my_drawer_layout)
 
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.topAppBar)
-        setSupportActionBar(toolbar)
+        topAppBar = findViewById(R.id.topAppBar)
+        setSupportActionBar(topAppBar)
         val actionbar: ActionBar? = supportActionBar
         actionbar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setHomeAsUpIndicator(R.drawable.menu)
         }
-        mDrawerLayout = findViewById(R.id.my_drawer_layout)
 
         val navigationView: NavigationView = findViewById(R.id.navigation)
         navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -146,13 +153,13 @@ class ReviewActivity : AppCompatActivity() {
             // close drawer when item is tapped
             mDrawerLayout.closeDrawers()
 
-            // Handle navigation view item clicks here.
+            // Handle navigation view item clicks here
             when (menuItem.itemId) {
+                // make rb visible so that view can know which list to display
                 R.id.main_activity -> {
                     val mainIntent = Intent(this, MainActivity::class.java)
                     this.startActivity(mainIntent)
                 }
-
                 R.id.view_activity -> {
                     Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
                 }
@@ -161,26 +168,28 @@ class ReviewActivity : AppCompatActivity() {
                     Toast.makeText(this, "Can only access through Home", Toast.LENGTH_LONG).show()
                 }
 
+                //go to settings
                 R.id.settings_activity -> {
                     val settingsIntent = Intent(this, SettingsActivity::class.java)
                     this.startActivity(settingsIntent)
                 }
             }
-            // Add code here to update the UI based on the item selected
-            // For example, swap UI fragments here
-
             true
 
         }
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         return when (item.itemId) {
             android.R.id.home -> {
                 mDrawerLayout.openDrawer(GravityCompat.START)
                 true
             }
 
-            else -> super.onOptionsItemSelected(item)
+            else -> {
+                true
+            }
         }
     }
 }

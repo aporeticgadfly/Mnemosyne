@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.content.Context
 import android.content.Intent
@@ -12,7 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
-import com.Zarathustra.Mnemosyne.data.ListItem
+import com.zarathustra.mnemosyne.data.ListItem
 
 class MnemosyneAdapter(
     private val children: MutableList<MainActivity.TreeNode<String>>,

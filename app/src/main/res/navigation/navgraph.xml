@@ -5,23 +5,23 @@
 
     <activity android:id="@+id/main_activity"
         android:label="Home"
-        android:name="com.example.Mnemosyne.MainActivity" />
+        android:name="com.zarathustra.mnemosyne.MainActivity" />
 
     <activity android:id="@+id/review_activity"
         android:label="Review"
-        android:name="com.example.Mnemosyne.ReviewActivity" />
+        android:name="com.zarathustra.mnemosyne.ReviewActivity" />
 
     <activity android:id="@+id/view_activity"
         android:label="View"
-        android:name="com.example.Mnemosyne.ViewActivity" />
+        android:name="com.zarathustra.mnemosyne.ViewActivity" />
 
     <activity android:id="@+id/history_activity"
         android:label="View"
-        android:name="com.example.Mnemosyne.HistoryActivity" />
+        android:name="com.zarathustra.mnemosyne.HistoryActivity" />
 
     <activity android:id="@+id/settings_activity"
         android:label="Settings"
-        android:name="com.example.Mnemosyne.SettingsActivity" />
+        android:name="com.zarathustra.mnemosyne.SettingsActivity" />
 
 
 </navigation>

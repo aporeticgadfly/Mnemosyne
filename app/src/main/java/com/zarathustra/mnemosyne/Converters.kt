@@ -1,8 +1,8 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.util.Log
 import androidx.room.TypeConverter
-import com.Zarathustra.Mnemosyne.data.ListItemItem
+import com.zarathustra.mnemosyne.data.ListItemItem
 import java.lang.IndexOutOfBoundsException
 
 class Converters {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.Zarathustra.Mnemosyne.data
+package com.zarathustra.mnemosyne.data
 
 import androidx.room.Dao
 import androidx.room.Insert

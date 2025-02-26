@@ -1,4 +1,4 @@
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.content.Context
 import android.graphics.Color
@@ -8,14 +8,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.Zarathustra.Mnemosyne.data.ListItemItem
-import java.util.ArrayList
+import com.zarathustra.mnemosyne.data.ListItemItem
 
-class FinishWrongAdapter(
+class FinishAdapter(
     private val context: Context,
-    private val correct: ArrayList<ListItemItem>?,
-    private val wrong: ArrayList<ListItemItem>?
-) : RecyclerView.Adapter<FinishWrongAdapter.ItemViewHolder>() {
+    private val correct: MutableList<ListItemItem>?,
+    private val wrong: MutableList<ListItemItem>?
+) : RecyclerView.Adapter<FinishAdapter.ItemViewHolder>() {
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -51,7 +50,6 @@ class FinishWrongAdapter(
                 //holder.imageView.setImageResource(R.drawable.check)
             }
         }
-
     }
 
     /**

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.Zarathustra.Mnemosyne
+package com.zarathustra.mnemosyne
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import com.Zarathustra.Mnemosyne.data.ItemRoomDatabase
+import com.zarathustra.mnemosyne.data.ItemRoomDatabase
 
 
 class Mnemosyne : Application() {

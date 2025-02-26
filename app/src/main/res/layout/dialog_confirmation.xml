@@ -4,8 +4,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <!-- Dialog Content -->
-    <!-- Add your content views here -->
     <TextView
         android:id="@+id/dialog_title"
         android:layout_width="match_parent"
