@@ -1,0 +1,1 @@
+A memorization app designed for lists as opposed to traditional flashcards

@@ -1,0 +1,7 @@
+[Version 1.2.1] - 25 02 2025
+Added
+    Deleted export fragment dialog
+    Release binary
+Fixed
+    Fixed navgraph
+    Changed package name to lowercase
